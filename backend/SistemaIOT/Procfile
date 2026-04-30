@@ -1,1 +1,1 @@
-web: gunicorn SistemaIOT.wsgiapplication --bind 0.0.0.0:$PORT
+web: gunicorn SistemaIOT.wsgi:application --bind 0.0.0.0:$PORT
