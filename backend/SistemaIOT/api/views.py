@@ -1,6 +1,8 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ModelViewSet
+
 from django.contrib.auth.hashers import make_password, check_password
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -17,7 +19,6 @@ def register(request):
     try:
         data = request.data
 
-        # validar email único
         if Usuario.objects.filter(email=data['email']).exists():
             return Response({'error': 'El correo ya existe'}, status=400)
 
@@ -47,7 +48,6 @@ def login(request):
     if not check_password(password, user.password):
         return Response({'error': 'Contraseña incorrecta'}, status=401)
 
-    # 🔥 generar JWT
     refresh = RefreshToken.for_user(user)
 
     return Response({
@@ -78,7 +78,6 @@ def crear_lectura(request):
             sensor=sensor
         )
 
-        # lógica de riesgo
         if valor < 10:
             nivel = "Normal"
         elif valor < 20:
@@ -110,59 +109,106 @@ def crear_lectura(request):
 
 
 # ==========================
-# 🔒 CRUD PROTEGIDO CON JWT
+# 🔥 VIEWSETS PROFESIONALES
 # ==========================
 
-def crud_list(model, serializer):
-    @api_view(['GET'])
-    @permission_classes([IsAuthenticated])
-    def view(request):
-        data = model.objects.all()
-        return Response(serializer(data, many=True).data)
-    return view
+class ZonaViewSet(ModelViewSet):
+    queryset = ZonaMonitoreo.objects.all()
+    serializer_class = ZonaSerializer
+    permission_classes = [IsAuthenticated]
 
 
-def crud_create(model, serializer):
-    @api_view(['POST'])
-    @permission_classes([IsAuthenticated])
-    def view(request):
-        obj = model.objects.create(**request.data)
-        return Response(serializer(obj).data)
-    return view
+class DispositivoViewSet(ModelViewSet):
+    queryset = DispositivoIoT.objects.all()
+    serializer_class = DispositivoSerializer
+    permission_classes = [IsAuthenticated]
 
 
-# ==========================
-# 📂 VISTAS POR TABLA
-# ==========================
+class SensorViewSet(ModelViewSet):
+    queryset = Sensor.objects.all()
+    serializer_class = SensorSerializer
+    permission_classes = [IsAuthenticated]
 
-zona_list = crud_list(ZonaMonitoreo, ZonaSerializer)
-zona_create = crud_create(ZonaMonitoreo, ZonaSerializer)
 
-dispositivo_list = crud_list(DispositivoIoT, DispositivoSerializer)
-dispositivo_create = crud_create(DispositivoIoT, DispositivoSerializer)
+class LecturaViewSet(ModelViewSet):
+    queryset = LecturaNivel.objects.all()
+    serializer_class = LecturaSerializer
+    permission_classes = [IsAuthenticated]
 
-sensor_list = crud_list(Sensor, SensorSerializer)
-sensor_create = crud_create(Sensor, SensorSerializer)
 
-lectura_list = crud_list(LecturaNivel, LecturaSerializer)
+class EstadoRiesgoViewSet(ModelViewSet):
+    queryset = EstadoRiesgo.objects.all()
+    serializer_class = EstadoRiesgoSerializer
+    permission_classes = [IsAuthenticated]
 
-estado_list = crud_list(EstadoRiesgo, EstadoRiesgoSerializer)
 
-alerta_list = crud_list(Alerta, AlertaSerializer)
+class AlertaViewSet(ModelViewSet):
+    queryset = Alerta.objects.all()
+    serializer_class = AlertaSerializer
+    permission_classes = [IsAuthenticated]
 
-notificacion_list = crud_list(Notificacion, NotificacionSerializer)
 
-pronostico_list = crud_list(Pronostico, PronosticoSerializer)
-prediccion_list = crud_list(PrediccionRiesgo, PrediccionSerializer)
+class NotificacionViewSet(ModelViewSet):
+    queryset = Notificacion.objects.all()
+    serializer_class = NotificacionSerializer
+    permission_classes = [IsAuthenticated]
 
-actuador_list = crud_list(Actuador, ActuadorSerializer)
-estado_actuador_list = crud_list(EstadoActuador, EstadoActuadorSerializer)
 
-comando_list = crud_list(ComandoRemoto, ComandoSerializer)
-respuesta_list = crud_list(RespuestaComando, RespuestaSerializer)
+class PronosticoViewSet(ModelViewSet):
+    queryset = Pronostico.objects.all()
+    serializer_class = PronosticoSerializer
+    permission_classes = [IsAuthenticated]
 
-usuario_list = crud_list(Usuario, UsuarioSerializer)
-rol_list = crud_list(Rol, RolSerializer)
-usuario_rol_list = crud_list(UsuarioRol, UsuarioRolSerializer)
 
-auditoria_list = crud_list(AuditoriaSistema, AuditoriaSerializer)
+class PrediccionViewSet(ModelViewSet):
+    queryset = PrediccionRiesgo.objects.all()
+    serializer_class = PrediccionSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class ActuadorViewSet(ModelViewSet):
+    queryset = Actuador.objects.all()
+    serializer_class = ActuadorSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class EstadoActuadorViewSet(ModelViewSet):
+    queryset = EstadoActuador.objects.all()
+    serializer_class = EstadoActuadorSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class ComandoViewSet(ModelViewSet):
+    queryset = ComandoRemoto.objects.all()
+    serializer_class = ComandoSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class RespuestaViewSet(ModelViewSet):
+    queryset = RespuestaComando.objects.all()
+    serializer_class = RespuestaSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class UsuarioViewSet(ModelViewSet):
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class RolViewSet(ModelViewSet):
+    queryset = Rol.objects.all()
+    serializer_class = RolSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class UsuarioRolViewSet(ModelViewSet):
+    queryset = UsuarioRol.objects.all()
+    serializer_class = UsuarioRolSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class AuditoriaViewSet(ModelViewSet):
+    queryset = AuditoriaSistema.objects.all()
+    serializer_class = AuditoriaSerializer
+    permission_classes = [IsAuthenticated]
