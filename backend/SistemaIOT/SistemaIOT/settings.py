@@ -26,7 +26,9 @@ SECRET_KEY = 'django-insecure-u$*577d@hl8n=23==*8hcbhj$-iz6-=$1y34ctj0ukcayf#x_j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+     "sistema-alerta-production.up.railway.app"
+]
 import os
 
 ALLOWED_HOSTS = ['*']
@@ -93,6 +95,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'SistemaIOT.wsgi.application'
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://sistema-alerta-production.up.railway.app"
+]
 
 
 # Database
