@@ -9,12 +9,14 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import *
 from .serializers import *
+from rest_framework.permissions import AllowAny
 
 # ==========================
 # 🔐 AUTH (JWT MODERNO)
 # ==========================
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def register(request):
     try:
         data = request.data
@@ -36,6 +38,7 @@ def register(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def login(request):
     email = request.data.get('email')
     password = request.data.get('password')
