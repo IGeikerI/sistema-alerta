@@ -166,3 +166,35 @@ class AuditoriaSistema(models.Model):
 
     def __str__(self):
         return f"{self.usuario.nombre if self.usuario else 'Sin usuario'} - {self.accion}"
+    
+    # 🧩 RECURSO DEL SISTEMA
+class Recurso(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(null=True, blank=True)
+    url_backend = models.CharField(max_length=255, null=True, blank=True)
+    url_frontend = models.CharField(max_length=255, null=True, blank=True)
+    path = models.CharField(max_length=255, null=True, blank=True)
+    icono = models.CharField(max_length=100, null=True, blank=True)
+    orden = models.IntegerField(default=1)
+    estado = models.CharField(max_length=20, default='ACTIVO')
+    recurso_padre = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    def __str__(self):
+        return self.nombre
+
+
+# 🔐 RELACIÓN ROL - RECURSO
+class RolRecurso(models.Model):
+    rol = models.ForeignKey(Rol, on_delete=models.CASCADE)
+    recurso = models.ForeignKey(Recurso, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('rol', 'recurso')
+
+    def __str__(self):
+        return f"{self.rol.nombre} - {self.recurso.nombre}"

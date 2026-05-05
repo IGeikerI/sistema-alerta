@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,  AllowAny
 from rest_framework.viewsets import ModelViewSet
 
 from django.contrib.auth.hashers import make_password, check_password
@@ -53,8 +53,9 @@ def login(request):
 
     refresh = RefreshToken.for_user(user)
 
-    # 🔥 OBTENER ROLES DEL USUARIO
+    # 🔥 Obtener roles del usuario
     user_roles = UsuarioRol.objects.filter(usuario=user).select_related('rol')
+
     roles = [
         {
             'id': ur.rol.id,
@@ -63,7 +64,16 @@ def login(request):
         for ur in user_roles
     ]
 
-    # 🔥 DEVOLVER LA RESPUESTA CORRECTA
+    # 🔥 Obtener recursos permitidos según los roles
+    roles_ids = [ur.rol.id for ur in user_roles]
+
+    recursos_qs = Recurso.objects.filter(
+        rolrecurso__rol_id__in=roles_ids,
+        estado__iexact='ACTIVO'
+    ).distinct().order_by('orden')
+
+    recursos = RecursoSerializer(recursos_qs, many=True).data
+
     return Response({
         'access': str(refresh.access_token),
         'refresh': str(refresh),
@@ -73,7 +83,7 @@ def login(request):
             'email': user.email
         },
         'roles': roles,
-        'recursos': []  # 🔥 AQUÍ PUEDES AGREGAR LÓGICA DE RECURSOS SI LOS TIENES
+        'recursos': recursos
     })
 
 
@@ -127,6 +137,20 @@ def crear_lectura(request):
 # ==========================
 # 🔥 VIEWSETS PROFESIONALES
 # ==========================
+
+class RecursoViewSet(ModelViewSet):
+    queryset = Recurso.objects.all().order_by('orden')
+    serializer_class = RecursoSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class RolRecursoViewSet(ModelViewSet):
+    queryset = RolRecurso.objects.all()
+    serializer_class = RolRecursoSerializer
+    permission_classes = [IsAuthenticated]
+
+
+
 
 class ZonaViewSet(ModelViewSet):
     queryset = ZonaMonitoreo.objects.all()

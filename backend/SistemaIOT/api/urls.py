@@ -21,6 +21,8 @@ router.register('usuarios', UsuarioViewSet)
 router.register('roles', RolViewSet)
 router.register('usuario-rol', UsuarioRolViewSet)
 router.register('auditoria', AuditoriaViewSet)
+router.register('recursos', RecursoViewSet)
+router.register('roles-recursos', RolRecursoViewSet)
 
 urlpatterns = [
     path('register/', register),

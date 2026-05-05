@@ -102,3 +102,17 @@ class AuditoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuditoriaSistema
         fields = '__all__'
+
+
+class RecursoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recurso
+        fields = '__all__'
+
+
+class RolRecursoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RolRecurso
+        fields = '__all__'
+
+        

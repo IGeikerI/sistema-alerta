@@ -93,3 +93,17 @@ class PrediccionAdmin(admin.ModelAdmin):
 @admin.register(AuditoriaSistema)
 class AuditoriaAdmin(admin.ModelAdmin):
     list_display = ('id', 'usuario', 'accion', 'fecha')
+    
+    
+@admin.register(Recurso)
+class RecursoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'nombre', 'url_frontend', 'icono', 'orden', 'estado')
+    search_fields = ('nombre', 'url_frontend')
+    list_filter = ('estado',)
+
+
+@admin.register(RolRecurso)
+class RolRecursoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'rol', 'recurso')
+    search_fields = ('rol__nombre', 'recurso__nombre')
+    list_filter = ('rol',)
