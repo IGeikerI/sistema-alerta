@@ -50,14 +50,27 @@ def login(request):
 
     refresh = RefreshToken.for_user(user)
 
+    # 🔥 OBTENER ROLES DEL USUARIO
+    user_roles = UsuarioRol.objects.filter(usuario=user).select_related('rol')
+    roles = [
+        {
+            'id': ur.rol.id,
+            'nombre': ur.rol.nombre
+        }
+        for ur in user_roles
+    ]
+
+    # 🔥 DEVOLVER LA RESPUESTA CORRECTA
     return Response({
         'access': str(refresh.access_token),
         'refresh': str(refresh),
-        'user': {
+        'usuario': {
             'id': user.id,
             'nombre': user.nombre,
             'email': user.email
-        }
+        },
+        'roles': roles,
+        'recursos': []  # 🔥 AQUÍ PUEDES AGREGAR LÓGICA DE RECURSOS SI LOS TIENES
     })
 
 
