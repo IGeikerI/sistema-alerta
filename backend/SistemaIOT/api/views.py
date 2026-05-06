@@ -11,6 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 import json
 import urllib.request
 import urllib.parse
+import urllib.error
 
 from .models import *
 from .serializers import *
@@ -154,13 +155,16 @@ def crear_lectura(request):
 @permission_classes([IsAuthenticated])
 def openweather_actual(request):
     try:
-        api_key = settings.OPENWEATHER_API_KEY
-        lat = settings.OPENWEATHER_LAT
-        lon = settings.OPENWEATHER_LON
+        api_key = getattr(settings, "OPENWEATHER_API_KEY", "")
+        lat = getattr(settings, "OPENWEATHER_LAT", "11.5444")
+        lon = getattr(settings, "OPENWEATHER_LON", "-72.9072")
 
         if not api_key:
             return Response(
-                {'error': 'No está configurada la API KEY de OpenWeather en el backend.'},
+                {
+                    'error': 'No está configurada la API KEY de OpenWeather en Railway.',
+                    'sugerencia': 'Agrega OPENWEATHER_API_KEY en Variables del servicio backend.'
+                },
                 status=500
             )
 
@@ -174,10 +178,23 @@ def openweather_actual(request):
 
         url = f'https://api.openweathermap.org/data/2.5/weather?{params}'
 
-        with urllib.request.urlopen(url, timeout=15) as response:
-            data = json.loads(response.read().decode('utf-8'))
+        try:
+            with urllib.request.urlopen(url, timeout=20) as response:
+                data = json.loads(response.read().decode('utf-8'))
 
-        return Response(data)
+            return Response(data)
+
+        except urllib.error.HTTPError as e:
+            detalle = e.read().decode('utf-8')
+
+            return Response(
+                {
+                    'error': 'OpenWeather rechazó la solicitud.',
+                    'status_openweather': e.code,
+                    'detalle': detalle
+                },
+                status=500
+            )
 
     except Exception as e:
         return Response(
@@ -193,13 +210,16 @@ def openweather_actual(request):
 @permission_classes([IsAuthenticated])
 def openweather_forecast(request):
     try:
-        api_key = settings.OPENWEATHER_API_KEY
-        lat = settings.OPENWEATHER_LAT
-        lon = settings.OPENWEATHER_LON
+        api_key = getattr(settings, "OPENWEATHER_API_KEY", "")
+        lat = getattr(settings, "OPENWEATHER_LAT", "11.5444")
+        lon = getattr(settings, "OPENWEATHER_LON", "-72.9072")
 
         if not api_key:
             return Response(
-                {'error': 'No está configurada la API KEY de OpenWeather en el backend.'},
+                {
+                    'error': 'No está configurada la API KEY de OpenWeather en Railway.',
+                    'sugerencia': 'Agrega OPENWEATHER_API_KEY en Variables del servicio backend.'
+                },
                 status=500
             )
 
@@ -213,10 +233,23 @@ def openweather_forecast(request):
 
         url = f'https://api.openweathermap.org/data/2.5/forecast?{params}'
 
-        with urllib.request.urlopen(url, timeout=15) as response:
-            data = json.loads(response.read().decode('utf-8'))
+        try:
+            with urllib.request.urlopen(url, timeout=20) as response:
+                data = json.loads(response.read().decode('utf-8'))
 
-        return Response(data)
+            return Response(data)
+
+        except urllib.error.HTTPError as e:
+            detalle = e.read().decode('utf-8')
+
+            return Response(
+                {
+                    'error': 'OpenWeather rechazó la solicitud.',
+                    'status_openweather': e.code,
+                    'detalle': detalle
+                },
+                status=500
+            )
 
     except Exception as e:
         return Response(
