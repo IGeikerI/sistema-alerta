@@ -28,6 +28,8 @@ urlpatterns = [
     path('register/', register),
     path('login/', login),
     path('lecturas-iot/', crear_lectura),  # 👈 renombrada para no chocar
+    path('openweather/actual/', openweather_actual),
+    path('openweather/forecast/', openweather_forecast),
 ]
 
 urlpatterns += router.urls

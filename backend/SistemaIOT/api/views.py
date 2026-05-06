@@ -1,15 +1,20 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated,  AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.viewsets import ModelViewSet
 
 from django.contrib.auth.hashers import make_password, check_password
+from django.conf import settings
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
+import json
+import urllib.request
+import urllib.parse
+
 from .models import *
 from .serializers import *
-from rest_framework.permissions import AllowAny
+
 
 # ==========================
 # 🔐 AUTH (JWT MODERNO)
@@ -92,9 +97,10 @@ def login(request):
 # ==========================
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def crear_lectura(request):
     try:
-        valor = request.data['valor']
+        valor = float(request.data['valor'])
         sensor_id = request.data['sensor']
 
         sensor = Sensor.objects.get(id=sensor_id)
@@ -130,8 +136,96 @@ def crear_lectura(request):
             'nivel': nivel
         })
 
+    except Sensor.DoesNotExist:
+        return Response({'error': 'El sensor no existe'}, status=404)
+
+    except EstadoRiesgo.DoesNotExist:
+        return Response({'error': 'El estado de riesgo no existe en la base de datos'}, status=404)
+
     except Exception as e:
         return Response({'error': str(e)}, status=500)
+
+
+# ==========================
+# 🌦️ OPENWEATHER DESDE BACKEND
+# ==========================
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def openweather_actual(request):
+    try:
+        api_key = settings.OPENWEATHER_API_KEY
+        lat = settings.OPENWEATHER_LAT
+        lon = settings.OPENWEATHER_LON
+
+        if not api_key:
+            return Response(
+                {'error': 'No está configurada la API KEY de OpenWeather en el backend.'},
+                status=500
+            )
+
+        params = urllib.parse.urlencode({
+            'lat': lat,
+            'lon': lon,
+            'appid': api_key,
+            'units': 'metric',
+            'lang': 'es'
+        })
+
+        url = f'https://api.openweathermap.org/data/2.5/weather?{params}'
+
+        with urllib.request.urlopen(url, timeout=15) as response:
+            data = json.loads(response.read().decode('utf-8'))
+
+        return Response(data)
+
+    except Exception as e:
+        return Response(
+            {
+                'error': 'No fue posible consultar el clima actual.',
+                'detail': str(e)
+            },
+            status=500
+        )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def openweather_forecast(request):
+    try:
+        api_key = settings.OPENWEATHER_API_KEY
+        lat = settings.OPENWEATHER_LAT
+        lon = settings.OPENWEATHER_LON
+
+        if not api_key:
+            return Response(
+                {'error': 'No está configurada la API KEY de OpenWeather en el backend.'},
+                status=500
+            )
+
+        params = urllib.parse.urlencode({
+            'lat': lat,
+            'lon': lon,
+            'appid': api_key,
+            'units': 'metric',
+            'lang': 'es'
+        })
+
+        url = f'https://api.openweathermap.org/data/2.5/forecast?{params}'
+
+        with urllib.request.urlopen(url, timeout=15) as response:
+            data = json.loads(response.read().decode('utf-8'))
+
+        return Response(data)
+
+    except Exception as e:
+        return Response(
+            {
+                'error': 'No fue posible consultar el pronóstico.',
+                'detail': str(e)
+            },
+            status=500
+        )
 
 
 # ==========================
@@ -148,8 +242,6 @@ class RolRecursoViewSet(ModelViewSet):
     queryset = RolRecurso.objects.all()
     serializer_class = RolRecursoSerializer
     permission_classes = [IsAuthenticated]
-
-
 
 
 class ZonaViewSet(ModelViewSet):

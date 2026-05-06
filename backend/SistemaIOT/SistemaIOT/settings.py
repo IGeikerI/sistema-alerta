@@ -35,6 +35,10 @@ ALLOWED_HOSTS = ['*']
 
 from datetime import timedelta
 
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "")
+OPENWEATHER_LAT = os.getenv("OPENWEATHER_LAT", "11.5444")
+OPENWEATHER_LON = os.getenv("OPENWEATHER_LON", "-72.9072")
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
