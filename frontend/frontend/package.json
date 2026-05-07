@@ -3,13 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "packageManager": "npm@10.9.2",
-  "scripts": {
-    "ng": "ng",
-    "start": "serve -s dist/frontend/browser -l tcp://0.0.0.0:$PORT",
-    "build": "ng build --configuration production",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
-  },
+"scripts": {
+  "ng": "ng",
+  "start": "serve -s dist/frontend/browser -l tcp://0.0.0.0:${PORT:-3000}",
+  "build": "ng build --configuration production",
+  "watch": "ng build --watch --configuration development",
+  "test": "ng test"
+},
   "engines": {
     "node": "22.x",
     "npm": "10.9.2"

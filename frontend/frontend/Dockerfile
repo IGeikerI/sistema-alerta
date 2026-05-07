@@ -19,6 +19,8 @@ RUN npm install -g serve@14.2.6
 
 COPY --from=build /app/dist ./dist
 
+ENV PORT=3000
+
 EXPOSE 3000
 
-CMD sh -c "serve -s dist/frontend/browser -l tcp://0.0.0.0:${PORT:-3000}"
+CMD ["sh", "-c", "serve -s dist/frontend/browser -l tcp://0.0.0.0:${PORT}"]
