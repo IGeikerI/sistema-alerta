@@ -1,6 +1,8 @@
 {
   "name": "frontend",
   "version": "0.0.0",
+  "private": true,
+  "packageManager": "npm@10.9.2",
   "scripts": {
     "ng": "ng",
     "start": "serve -s dist/frontend/browser -l tcp://0.0.0.0:$PORT",
@@ -12,7 +14,6 @@
     "node": "22.x",
     "npm": "10.9.2"
   },
-  "private": true,
   "dependencies": {
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
