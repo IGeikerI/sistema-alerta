@@ -3,7 +3,8 @@
   "steps": {
     "install": {
       "commands": [
-        "npm install --legacy-peer-deps"
+        "npm install -g npm@10.9.2",
+        "npm ci --legacy-peer-deps --include=dev"
       ]
     },
     "build": {
