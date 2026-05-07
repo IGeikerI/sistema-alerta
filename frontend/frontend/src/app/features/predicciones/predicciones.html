@@ -1,0 +1,137 @@
+<section class="page">
+
+  <div class="hero">
+    <div>
+      <span class="badge">Análisis preventivo</span>
+      <h1>Predicciones de riesgo</h1>
+      <p>
+        Consulte la estimación del riesgo por inundación a partir de las condiciones registradas en el sistema.
+      </p>
+
+      <button type="button" (click)="cargarPredicciones()">
+        <i class="fa-solid fa-rotate"></i>
+        Actualizar
+      </button>
+    </div>
+
+    <div class="risk-card" [ngClass]="getClaseNivel(prediccionActual?.nivel_estimado)">
+      <span>Riesgo próximo</span>
+      <strong>{{ prediccionActual?.nivel_estimado || 'Sin datos' }}</strong>
+      <small>{{ prediccionActual?.probabilidad ?? 0 }}% probabilidad</small>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="card">
+      <i class="fa-solid fa-brain"></i>
+      <div>
+        <h3>{{ totalPredicciones }}</h3>
+        <p>Predicciones registradas</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <div>
+        <h3>{{ totalPeligro }}</h3>
+        <p>Predicciones en peligro</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <i class="fa-solid fa-percent"></i>
+      <div>
+        <h3>{{ probabilidadPromedio }}%</h3>
+        <p>Probabilidad promedio</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert-error" *ngIf="errorMessage">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    {{ errorMessage }}
+  </div>
+
+  <div class="content-grid">
+
+    <div class="main-card">
+      <div class="section-header">
+        <div>
+          <h2>Historial de predicciones</h2>
+          <p>Registro de estimaciones de riesgo generadas para los próximos días.</p>
+        </div>
+      </div>
+
+      <div *ngIf="loading" class="loading">
+        Cargando predicciones...
+      </div>
+
+      <table *ngIf="!loading && predicciones.length > 0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Nivel estimado</th>
+            <th>Probabilidad</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let item of predicciones">
+            <td>{{ item.id }}</td>
+            <td>{{ formatearFecha(item.fecha) }}</td>
+            <td>
+              <span class="pill" [ngClass]="getClaseNivel(item.nivel_estimado)">
+                {{ item.nivel_estimado }}
+              </span>
+            </td>
+            <td>{{ item.probabilidad }}%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="!loading && predicciones.length === 0" class="empty">
+        No hay predicciones registradas todavía.
+      </div>
+    </div>
+
+    <div class="side-card">
+      <h2>Resumen de riesgo</h2>
+      <p>Predicción más próxima registrada en el sistema.</p>
+
+      <div *ngIf="prediccionActual; else sinPrediccion">
+        <div class="current-risk" [ngClass]="getClaseNivel(prediccionActual.nivel_estimado)">
+          <i class="fa-solid fa-shield-halved"></i>
+          <h3>{{ prediccionActual.nivel_estimado }}</h3>
+          <span>{{ prediccionActual.probabilidad }}% de probabilidad</span>
+        </div>
+
+        <div class="risk-detail">
+          <strong>Fecha:</strong>
+          <span>{{ formatearFecha(prediccionActual.fecha) }}</span>
+        </div>
+
+        <div class="risk-detail">
+          <strong>Lectura sugerida:</strong>
+          <span>
+            {{
+              prediccionActual.nivel_estimado === 'Peligro'
+                ? 'Activar seguimiento preventivo y revisar alertas.'
+                : prediccionActual.nivel_estimado === 'Alerta'
+                  ? 'Mantener monitoreo constante.'
+                  : 'Condición estable.'
+            }}
+          </span>
+        </div>
+      </div>
+
+      <ng-template #sinPrediccion>
+        <div class="empty-mini">
+          Sin predicciones registradas.
+        </div>
+      </ng-template>
+    </div>
+
+  </div>
+
+</section>

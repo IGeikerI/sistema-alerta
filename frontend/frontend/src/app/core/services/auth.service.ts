@@ -1,8 +1,6 @@
-// src/app/core/services/auth.service.ts
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, catchError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { AuthResponse } from '../models/auth-response.model';
@@ -20,21 +18,41 @@ export class AuthService {
         private storageService: StorageService
     ) { }
 
-    login(username: string, password: string): Observable<AuthResponse> {
+    login(email: string, password: string): Observable<AuthResponse> {
         return this.http.post<AuthResponse>(`${this.apiUrl}/login/`, {
-            username,
+            email,
             password
         }).pipe(
-            tap(response => {
-                this.storageService.setToken(response.access);
+tap(response => {
+  console.log('✅ Login exitoso:', response);
 
-                if (response.refresh) {
-                    this.storageService.setRefreshToken(response.refresh);
-                }
+  if (response && response.access) {
+    this.storageService.setToken(response.access);
 
-                this.storageService.setUsuario(response.usuario);
-                this.storageService.setRoles(response.roles);
-                this.storageService.setRecursos(response.recursos);
+    if (response.refresh) {
+      this.storageService.setRefreshToken(response.refresh);
+    }
+
+    if (response.usuario) {
+      this.storageService.setUsuarioAuth(response.usuario);
+    }
+
+    if (response.roles) {
+      this.storageService.setRolesAuth(response.roles);
+    } else {
+      this.storageService.setRolesAuth([]);
+    }
+
+    if (response.recursos) {
+      this.storageService.setRecursosAuth(response.recursos);
+    } else {
+      this.storageService.setRecursosAuth([]);
+    }
+  }
+}),
+            catchError(error => {
+                console.error('❌ Error en login:', error);
+                throw error;
             })
         );
     }
@@ -45,5 +63,17 @@ export class AuthService {
 
     isAuthenticated(): boolean {
         return this.storageService.isAuthenticated();
+    }
+
+    getToken(): string | null {
+        return this.storageService.getToken();
+    }
+
+    getUsuario() {
+        return this.storageService.getUsuarioAuth();
+    }
+
+    getRoles() {
+        return this.storageService.getRolesAuth();
     }
 }

@@ -1,3 +1,5 @@
+// src/app/services/api.services.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
@@ -11,31 +13,230 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
+  // =========================
+  // ROLES
+  // =========================
+  getRoles() {
+    return this.http.get(`${this.api}/roles/`);
+  }
+
+  crearRol(data: any) {
+    return this.http.post(`${this.api}/roles/`, data);
+  }
+
+  // =========================
+  // USUARIO-ROL
+  // =========================
+  getUsuarioRol() {
+    return this.http.get(`${this.api}/usuario-rol/`);
+  }
+
+  crearUsuarioRol(data: any) {
+    return this.http.post(`${this.api}/usuario-rol/`, data);
+  }
+
+  // =========================
+  // USUARIOS
+  // =========================
+  getUsuarios() {
+    return this.http.get(`${this.api}/usuarios/`);
+  }
+
+  crearUsuario(data: any) {
+    return this.http.post(`${this.api}/usuarios/`, data);
+  }
+
+  // =========================
+  // RECURSOS
+  // =========================
+  getRecursos() {
+    return this.http.get(`${this.api}/recursos/`);
+  }
+
+  crearRecurso(data: any) {
+    return this.http.post(`${this.api}/recursos/`, data);
+  }
+
+  // =========================
+  // ROL-RECURSO
+  // =========================
+  getRolRecursos() {
+    return this.http.get(`${this.api}/rol-recursos/`);
+  }
+
+  crearRolRecurso(data: any) {
+    return this.http.post(`${this.api}/rol-recursos/`, data);
+  }
+
+  // =========================
+  // OPENWEATHER DESDE BACKEND
+  // =========================
+  getClimaActual() {
+    return this.http.get(`${this.api}/openweather/actual/`);
+  }
+
+  getPronostico5Dias() {
+    return this.http.get(`${this.api}/openweather/forecast/`);
+  }
+
+  getClimaActualOpenWeather() {
+    return this.getClimaActual();
+  }
+
+  // =========================
   // ZONAS
+  // =========================
   getZonas() {
     return this.http.get(`${this.api}/zonas/`);
   }
 
   crearZona(data: any) {
-    return this.http.post(`${this.api}/zonas/create/`, data);
+    return this.http.post(`${this.api}/zonas/`, data);
   }
 
+  // =========================
+  // DISPOSITIVOS
+  // =========================
+  getDispositivos() {
+    return this.http.get(`${this.api}/dispositivos/`);
+  }
+
+  crearDispositivo(data: any) {
+    return this.http.post(`${this.api}/dispositivos/`, data);
+  }
+
+  // =========================
+  // SENSORES
+  // =========================
+  getSensores() {
+    return this.http.get(`${this.api}/sensores/`);
+  }
+
+  crearSensor(data: any) {
+    return this.http.post(`${this.api}/sensores/`, data);
+  }
+
+  // =========================
   // LECTURAS
+  // =========================
   getLecturas() {
-    return this.http.get(`${this.api}/lecturas/list/`);
+    return this.http.get(`${this.api}/lecturas/`);
   }
 
   crearLectura(data: any) {
     return this.http.post(`${this.api}/lecturas/`, data);
   }
 
-  // LOGIN
+  crearLecturaIoT(data: any) {
+    return this.http.post(`${this.api}/lecturas-iot/`, data);
+  }
+
+  // =========================
+  // ESTADOS DE RIESGO
+  // =========================
+  getEstadosRiesgo() {
+    return this.http.get(`${this.api}/estados/`);
+  }
+
+  crearEstadoRiesgo(data: any) {
+    return this.http.post(`${this.api}/estados/`, data);
+  }
+
+  // =========================
+  // ALERTAS
+  // =========================
+  getAlertas() {
+    return this.http.get(`${this.api}/alertas/`);
+  }
+
+  // =========================
+  // NOTIFICACIONES
+  // =========================
+  getNotificaciones() {
+    return this.http.get(`${this.api}/notificaciones/`);
+  }
+
+  crearNotificacion(data: any) {
+    return this.http.post(`${this.api}/notificaciones/`, data);
+  }
+
+  // =========================
+  // PRONÓSTICOS
+  // =========================
+  getPronosticos() {
+    return this.http.get(`${this.api}/pronosticos/`);
+  }
+
+  // =========================
+  // PREDICCIONES
+  // =========================
+  getPredicciones() {
+    return this.http.get(`${this.api}/predicciones/`);
+  }
+
+  // =========================
+  // ACTUADORES
+  // =========================
+  getActuadores() {
+    return this.http.get(`${this.api}/actuadores/`);
+  }
+
+  crearActuador(data: any) {
+    return this.http.post(`${this.api}/actuadores/`, data);
+  }
+
+  // =========================
+  // ESTADO ACTUADOR
+  // =========================
+  getEstadosActuador() {
+    return this.http.get(`${this.api}/estado-actuador/`);
+  }
+
+  crearEstadoActuador(data: any) {
+    return this.http.post(`${this.api}/estado-actuador/`, data);
+  }
+
+  // =========================
+  // COMANDOS REMOTOS
+  // =========================
+  getComandos() {
+    return this.http.get(`${this.api}/comandos/`);
+  }
+
+  crearComando(data: any) {
+    return this.http.post(`${this.api}/comandos/`, data);
+  }
+
+  // =========================
+  // RESPUESTAS DE COMANDO
+  // =========================
+  getRespuestas() {
+    return this.http.get(`${this.api}/respuestas/`);
+  }
+
+  crearRespuesta(data: any) {
+    return this.http.post(`${this.api}/respuestas/`, data);
+  }
+
+  // =========================
+  // AUDITORÍA
+  // =========================
+  getAuditoria() {
+    return this.http.get(`${this.api}/auditoria/`);
+  }
+
+  crearAuditoria(data: any) {
+    return this.http.post(`${this.api}/auditoria/`, data);
+  }
+
+  // =========================
+  // AUTH
+  // =========================
   login(data: any) {
     return this.http.post(`${this.api}/login/`, data);
   }
-  // REGISTRO
-register(data: any) {
-  return this.http.post(`${this.api}/register/`, data);
-}
 
+  register(data: any) {
+    return this.http.post(`${this.api}/register/`, data);
+  }
 }

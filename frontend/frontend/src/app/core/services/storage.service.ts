@@ -1,9 +1,7 @@
 // src/app/core/services/storage.service.ts
 
 import { Injectable } from '@angular/core';
-import { Usuario } from '../models/usuario.model';
-import { Rol } from '../models/rol.model';
-import { Recurso } from '../models/recurso.model';
+import { UsuarioAuth, RolAuth, RecursoAuth } from '../models/auth-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,10 +10,13 @@ export class StorageService {
 
   private readonly TOKEN_KEY = 'access_token';
   private readonly REFRESH_KEY = 'refresh_token';
-  private readonly USER_KEY = 'usuario';
-  private readonly ROLES_KEY = 'roles';
-  private readonly RECURSOS_KEY = 'recursos';
+  private readonly USER_AUTH_KEY = 'usuario_auth';
+  private readonly ROLES_AUTH_KEY = 'roles_auth';
+  private readonly RECURSOS_AUTH_KEY = 'recursos_auth';
 
+  // ============================================
+  // 🔥 TOKEN
+  // ============================================
   setToken(token: string): void {
     localStorage.setItem(this.TOKEN_KEY, token);
   }
@@ -24,6 +25,9 @@ export class StorageService {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
+  // ============================================
+  // 🔥 REFRESH TOKEN
+  // ============================================
   setRefreshToken(token: string): void {
     localStorage.setItem(this.REFRESH_KEY, token);
   }
@@ -32,35 +36,78 @@ export class StorageService {
     return localStorage.getItem(this.REFRESH_KEY);
   }
 
-  setUsuario(usuario: Usuario): void {
-    localStorage.setItem(this.USER_KEY, JSON.stringify(usuario));
+  // ============================================
+  // 🔥 USUARIO
+  // ============================================
+  setUsuarioAuth(usuario: UsuarioAuth): void {
+    localStorage.setItem(this.USER_AUTH_KEY, JSON.stringify(usuario));
   }
 
-  getUsuario(): Usuario | null {
-    const data = localStorage.getItem(this.USER_KEY);
+  getUsuarioAuth(): UsuarioAuth | null {
+    const data = localStorage.getItem(this.USER_AUTH_KEY);
     return data ? JSON.parse(data) : null;
   }
 
-  setRoles(roles: Rol[]): void {
-    localStorage.setItem(this.ROLES_KEY, JSON.stringify(roles));
+  // 🔥 ALIAS PARA COMPATIBILIDAD CON OTROS COMPONENTES
+  getUsuario(): UsuarioAuth | null {
+    return this.getUsuarioAuth();
   }
 
-  getRoles(): Rol[] {
-    const data = localStorage.getItem(this.ROLES_KEY);
+  setUsuario(usuario: UsuarioAuth): void {
+    this.setUsuarioAuth(usuario);
+  }
+
+  // ============================================
+  // 🔥 ROLES
+  // ============================================
+  setRolesAuth(roles: RolAuth[]): void {
+    localStorage.setItem(this.ROLES_AUTH_KEY, JSON.stringify(roles));
+  }
+
+  getRolesAuth(): RolAuth[] {
+    const data = localStorage.getItem(this.ROLES_AUTH_KEY);
     return data ? JSON.parse(data) : [];
   }
 
-  setRecursos(recursos: Recurso[]): void {
-    localStorage.setItem(this.RECURSOS_KEY, JSON.stringify(recursos));
+  // 🔥 ALIAS PARA COMPATIBILIDAD CON OTROS COMPONENTES
+  getRoles(): RolAuth[] {
+    return this.getRolesAuth();
   }
 
-  getRecursos(): Recurso[] {
-    const data = localStorage.getItem(this.RECURSOS_KEY);
+  setRoles(roles: RolAuth[]): void {
+    this.setRolesAuth(roles);
+  }
+
+  // ============================================
+  // 🔥 RECURSOS
+  // ============================================
+  setRecursosAuth(recursos: RecursoAuth[]): void {
+    localStorage.setItem(this.RECURSOS_AUTH_KEY, JSON.stringify(recursos));
+  }
+
+  getRecursosAuth(): RecursoAuth[] {
+    const data = localStorage.getItem(this.RECURSOS_AUTH_KEY);
     return data ? JSON.parse(data) : [];
   }
 
+  // 🔥 ALIAS PARA COMPATIBILIDAD CON OTROS COMPONENTES
+  getRecursos(): RecursoAuth[] {
+    return this.getRecursosAuth();
+  }
+
+  setRecursos(recursos: RecursoAuth[]): void {
+    this.setRecursosAuth(recursos);
+  }
+
+  // ============================================
+  // 🔥 UTILIDADES
+  // ============================================
   clear(): void {
-    localStorage.clear();
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.REFRESH_KEY);
+    localStorage.removeItem(this.USER_AUTH_KEY);
+    localStorage.removeItem(this.ROLES_AUTH_KEY);
+    localStorage.removeItem(this.RECURSOS_AUTH_KEY);
   }
 
   isAuthenticated(): boolean {

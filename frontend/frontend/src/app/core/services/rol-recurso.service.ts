@@ -1,10 +1,12 @@
+// src/app/core/services/rol-recurso.service.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, map, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
-import { RolRecurso, PaginatedRolRecursoResponse } from '../models/rol-recurso.model';
+import { RolRecurso } from '../models/rol-recurso.model';
 import { AuthHeadersService } from './auth-headers.service';
 
 @Injectable({
@@ -20,11 +22,11 @@ export class RolRecursoService {
   ) {}
 
   listar(): Observable<RolRecurso[]> {
-    return this.http.get<PaginatedRolRecursoResponse | RolRecurso[]>(
+    return this.http.get<any[]>(
       this.apiUrl,
       { headers: this.authHeaders.getAuthHeaders() }
     ).pipe(
-      map(response => Array.isArray(response) ? response : response.results),
+      map(response => Array.isArray(response) ? response : (response as any).results),
       catchError(this.handleError)
     );
   }

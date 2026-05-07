@@ -1,4 +1,4 @@
-//rol.service.ts
+// src/app/core/services/rol.service.ts
 
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -10,62 +10,82 @@ import { Rol, PaginatedRolResponse } from '../models/rol.model';
 import { AuthHeadersService } from './auth-headers.service';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class RolService {
 
-    private apiUrl = `${environment.API_URL}/roles/`;
+  private apiUrl = `${environment.API_URL}/roles/`;
 
-    constructor(
-        private http: HttpClient,
-        private authHeaders: AuthHeadersService
-    ) { }
+  constructor(
+    private http: HttpClient,
+    private authHeaders: AuthHeadersService
+  ) {}
 
-    listar(): Observable<Rol[]> {
-        const headers = this.authHeaders.getAuthHeaders();
+  listar(): Observable<Rol[]> {
+    const headers = this.authHeaders.getAuthHeaders();
 
-        console.log('HEADERS EN RolService:', headers.get('Authorization'));
+    return this.http.get<PaginatedRolResponse | any[]>(
+      this.apiUrl,
+      { headers }
+    ).pipe(
+      map(response => {
+        const data = Array.isArray(response) ? response : response.results;
+        return data.map(item => this.adaptarRol(item));
+      }),
+      catchError(this.handleError)
+    );
+  }
 
-        return this.http.get<PaginatedRolResponse | Rol[]>(
-            this.apiUrl,
-            { headers }
-        ).pipe(
-            map(response => Array.isArray(response) ? response : response.results),
-            catchError(this.handleError)
-        );
-    }
+  crear(rol: Partial<Rol>): Observable<Rol> {
+    const payload = {
+      nombre: rol.nombre
+    };
 
-    crear(rol: Partial<Rol>): Observable<Rol> {
-        return this.http.post<Rol>(
-            this.apiUrl,
-            rol,
-            { headers: this.authHeaders.getAuthHeaders() }
-        ).pipe(
-            catchError(this.handleError)
-        );
-    }
+    return this.http.post<any>(
+      this.apiUrl,
+      payload,
+      { headers: this.authHeaders.getAuthHeaders() }
+    ).pipe(
+      map(response => this.adaptarRol(response)),
+      catchError(this.handleError)
+    );
+  }
 
-    actualizar(id: number, rol: Partial<Rol>): Observable<Rol> {
-        return this.http.put<Rol>(
-            `${this.apiUrl}${id}/`,
-            rol,
-            { headers: this.authHeaders.getAuthHeaders() }
-        ).pipe(
-            catchError(this.handleError)
-        );
-    }
+  actualizar(id: number, rol: Partial<Rol>): Observable<Rol> {
+    const payload = {
+      nombre: rol.nombre
+    };
 
-    eliminar(id: number): Observable<void> {
-        return this.http.delete<void>(
-            `${this.apiUrl}${id}/`,
-            { headers: this.authHeaders.getAuthHeaders() }
-        ).pipe(
-            catchError(this.handleError)
-        );
-    }
+    return this.http.put<any>(
+      `${this.apiUrl}${id}/`,
+      payload,
+      { headers: this.authHeaders.getAuthHeaders() }
+    ).pipe(
+      map(response => this.adaptarRol(response)),
+      catchError(this.handleError)
+    );
+  }
 
-    private handleError(error: HttpErrorResponse) {
-        console.error('Error en RolService:', error);
-        return throwError(() => error);
-    }
+  eliminar(id: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}${id}/`,
+      { headers: this.authHeaders.getAuthHeaders() }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  private adaptarRol(data: any): Rol {
+    return {
+      idrol: data.idrol ?? data.id,
+      nombre: data.nombre,
+      descripcion: data.descripcion ?? '',
+      estado: data.estado ?? 'ACTIVO'
+    };
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    console.error('Error en RolService:', error);
+    return throwError(() => error);
+  }
 }

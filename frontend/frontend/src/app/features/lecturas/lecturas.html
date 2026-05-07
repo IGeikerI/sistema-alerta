@@ -1,0 +1,355 @@
+<section class="readings-page">
+
+  <div class="hero-panel">
+    <div class="hero-content">
+      <span class="eyebrow">Nivel del agua</span>
+      <h2>Lecturas del sistema</h2>
+      <p>
+        Registre, consulte y analice las mediciones del nivel del agua capturadas por los sensores del sistema.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn btn-light" type="button" (click)="refrescar()" [disabled]="loading || refreshing">
+          <i class="fa-solid fa-rotate" [class.spin]="refreshing"></i>
+          Actualizar
+        </button>
+
+        <button class="btn btn-primary" type="button" (click)="abrirModalCrear()">
+          <i class="fa-solid fa-plus"></i>
+          Nueva lectura
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-status">
+      <div class="status-ring" [ngClass]="claseEstadoActual()">
+        <span>{{ ultimaLectura?.valor ?? 0 }}</span>
+        <small>{{ estadoActual() }}</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <article class="metric-card">
+      <div class="metric-icon blue">
+        <i class="fa-solid fa-water"></i>
+      </div>
+
+      <div>
+        <h3>{{ lecturas.length }}</h3>
+        <p>Total lecturas</p>
+      </div>
+    </article>
+
+    <article class="metric-card">
+      <div class="metric-icon green">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+
+      <div>
+        <h3>{{ totalNormal() }}</h3>
+        <p>Lecturas normales</p>
+      </div>
+    </article>
+
+    <article class="metric-card">
+      <div class="metric-icon red">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+
+      <div>
+        <h3>{{ totalPeligro() }}</h3>
+        <p>En peligro</p>
+      </div>
+    </article>
+
+    <article class="metric-card">
+      <div class="metric-icon amber">
+        <i class="fa-solid fa-bell"></i>
+      </div>
+
+      <div>
+        <h3>{{ totalAlerta() }}</h3>
+        <p>En alerta</p>
+      </div>
+    </article>
+  </div>
+
+  <div class="message success" *ngIf="successMessage">
+    <i class="fa-solid fa-circle-check"></i>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <div class="message error" *ngIf="errorMessage && !modalVisible">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <section class="workspace-card">
+
+    <div class="workspace-header">
+      <div>
+        <h3>Historial de lecturas</h3>
+        <p>
+          Consulte las mediciones registradas y su clasificación de riesgo.
+          <span class="updating" *ngIf="refreshing">Actualizando datos...</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-control">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input
+          type="text"
+          placeholder="Buscar por valor, sensor, estado o fecha..."
+          [value]="searchTerm"
+          (input)="buscar($event)">
+      </div>
+
+      <div class="filter-group">
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="filtroEstado === 'TODOS'"
+          (click)="cambiarFiltroEstado('TODOS')">
+          Todos
+        </button>
+
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="filtroEstado === 'NORMAL'"
+          (click)="cambiarFiltroEstado('NORMAL')">
+          Normal
+        </button>
+
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="filtroEstado === 'PELIGRO'"
+          (click)="cambiarFiltroEstado('PELIGRO')">
+          Peligro
+        </button>
+
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="filtroEstado === 'ALERTA'"
+          (click)="cambiarFiltroEstado('ALERTA')">
+          Alerta
+        </button>
+      </div>
+
+      <button
+        class="clear-filters"
+        type="button"
+        *ngIf="searchTerm || filtroEstado !== 'TODOS'"
+        (click)="limpiarFiltros()">
+        <i class="fa-solid fa-xmark"></i>
+        Limpiar
+      </button>
+    </div>
+
+    <div class="skeleton-grid" *ngIf="loading">
+      <article class="skeleton-card" *ngFor="let item of [1,2,3]">
+        <div class="skeleton-top">
+          <span></span>
+          <small></small>
+        </div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line short"></div>
+      </article>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && lecturasFiltradas.length === 0 && !errorMessage">
+      <div class="empty-icon">
+        <i class="fa-solid fa-water"></i>
+      </div>
+
+      <h4>No hay lecturas para mostrar</h4>
+      <p>
+        No se encontraron lecturas con los filtros actuales. Intente limpiar la búsqueda o registre una nueva.
+      </p>
+
+      <button class="btn btn-primary" type="button" (click)="abrirModalCrear()">
+        <i class="fa-solid fa-plus"></i>
+        Registrar lectura
+      </button>
+    </div>
+
+    <div class="readings-grid" *ngIf="!loading && lecturasFiltradas.length > 0">
+      <article
+        class="reading-card"
+        *ngFor="let lectura of lecturasFiltradas; trackBy: trackByLecturaId">
+
+        <div class="reading-card-header">
+          <div class="reading-identity">
+            <div class="reading-avatar" [ngClass]="getClaseEstado(lectura.valor)">
+              <i class="fa-solid fa-water"></i>
+            </div>
+
+            <div>
+              <h4>{{ lectura.valor }} cm</h4>
+              <p>ID {{ lectura.id }}</p>
+            </div>
+          </div>
+
+          <span class="state-pill" [ngClass]="getClaseEstado(lectura.valor)">
+            {{ calcularEstado(lectura.valor) }}
+          </span>
+        </div>
+
+        <div class="reading-info-grid">
+          <div class="info-item">
+            <span>Sensor</span>
+            <strong>{{ obtenerNombreSensor(lectura.sensor) }}</strong>
+            <small>ID {{ lectura.sensor || 'N/A' }}</small>
+          </div>
+
+          <div class="info-item">
+            <span>Fecha</span>
+            <strong>{{ formatearFecha(lectura.fecha) }}</strong>
+          </div>
+        </div>
+
+      </article>
+    </div>
+
+  </section>
+
+</section>
+
+<div class="modal-backdrop" *ngIf="modalVisible">
+  <div class="modal-shell">
+
+    <div class="modal-visual">
+      <div class="modal-icon">
+        <i class="fa-solid fa-water"></i>
+      </div>
+
+      <h3>Nueva lectura</h3>
+
+      <p>
+        Registre una medición del nivel del agua para activar la lógica de riesgo del sistema.
+      </p>
+
+      <div class="modal-hint">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>
+          250 cm o más se considera normal. Entre 121 cm y 249 cm es peligro. 120 cm o menos genera alerta.
+        </span>
+      </div>
+    </div>
+
+    <div class="modal-content">
+
+      <div class="modal-top">
+        <div>
+          <h3>Formulario de lectura</h3>
+          <p>Complete la información capturada por el sensor.</p>
+        </div>
+
+        <button class="modal-close" type="button" (click)="cerrarModal()" [disabled]="saving">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="message error" *ngIf="errorMessage">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <form class="reading-form" (ngSubmit)="guardarLectura()">
+
+        <div class="form-section">
+          <h4>Datos de medición</h4>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Valor del nivel *</label>
+              <input
+                type="number"
+                name="valor"
+                [(ngModel)]="lecturaForm.valor"
+                placeholder="Ej: 390"
+                [disabled]="saving">
+            </div>
+
+            <div class="form-group">
+              <label>Unidad</label>
+              <input
+                type="text"
+                value="cm"
+                disabled>
+            </div>
+
+            <div class="form-group full">
+              <label>Sensor *</label>
+              <select
+                name="sensor"
+                [(ngModel)]="lecturaForm.sensor"
+                [disabled]="saving">
+                <option [ngValue]="null">Seleccione un sensor</option>
+                <option
+                  *ngFor="let sensor of sensores"
+                  [ngValue]="sensor.id">
+                  {{ sensor.tipo }} - {{ sensor.unidad }} - ID {{ sensor.id }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="preview-box"
+          *ngIf="lecturaForm.valor !== null && lecturaForm.valor !== undefined">
+          <span>Clasificación estimada</span>
+
+          <strong [ngClass]="getClaseEstado(lecturaForm.valor)">
+            {{ calcularEstado(lecturaForm.valor) }}
+          </strong>
+        </div>
+
+        <div class="reference-box">
+          <h4>Rangos de clasificación</h4>
+
+          <div class="range-row normal">
+            <span>250 cm a 400 cm o más</span>
+            <strong>Normal</strong>
+          </div>
+
+          <div class="range-row peligro">
+            <span>121 cm a 249 cm</span>
+            <strong>Peligro</strong>
+          </div>
+
+          <div class="range-row alerta">
+            <span>120 cm hacia abajo</span>
+            <strong>Alerta</strong>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" (click)="cerrarModal()" [disabled]="saving">
+            Cancelar
+          </button>
+
+          <button class="btn btn-primary" type="submit" [disabled]="saving">
+            <span *ngIf="!saving">
+              Guardar lectura
+            </span>
+
+            <span class="saving-content" *ngIf="saving">
+              <i class="fa-solid fa-spinner spin"></i>
+              Guardando...
+            </span>
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+</div>

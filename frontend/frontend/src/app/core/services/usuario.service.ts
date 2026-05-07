@@ -1,3 +1,5 @@
+// src/app/core/services/usuario.service.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, map, throwError } from 'rxjs';
@@ -20,31 +22,50 @@ export class UsuarioService {
   ) {}
 
   listar(): Observable<Usuario[]> {
-    return this.http.get<PaginatedUsuarioResponse | Usuario[]>(
+    return this.http.get<PaginatedUsuarioResponse | any[]>(
       this.apiUrl,
       { headers: this.authHeaders.getAuthHeaders() }
     ).pipe(
-      map(response => Array.isArray(response) ? response : response.results),
+      map(response => {
+        const data = Array.isArray(response) ? response : response.results;
+        return data.map(item => this.adaptarUsuario(item));
+      }),
       catchError(this.handleError)
     );
   }
 
   crear(usuario: Partial<Usuario>): Observable<Usuario> {
-    return this.http.post<Usuario>(
+    const payload: any = {
+      nombre: usuario.nombre || usuario.username,
+      email: usuario.email
+    };
+
+    if ((usuario as any).password) {
+      payload.password = (usuario as any).password;
+    }
+
+    return this.http.post<any>(
       this.apiUrl,
-      usuario,
+      payload,
       { headers: this.authHeaders.getAuthHeaders() }
     ).pipe(
+      map(response => this.adaptarUsuario(response)),
       catchError(this.handleError)
     );
   }
 
   actualizar(id: number, usuario: Partial<Usuario>): Observable<Usuario> {
-    return this.http.put<Usuario>(
+    const payload = {
+      nombre: usuario.nombre || usuario.username,
+      email: usuario.email
+    };
+
+    return this.http.put<any>(
       `${this.apiUrl}${id}/`,
-      usuario,
+      payload,
       { headers: this.authHeaders.getAuthHeaders() }
     ).pipe(
+      map(response => this.adaptarUsuario(response)),
       catchError(this.handleError)
     );
   }
@@ -56,6 +77,17 @@ export class UsuarioService {
     ).pipe(
       catchError(this.handleError)
     );
+  }
+
+  private adaptarUsuario(data: any): Usuario {
+    return {
+      idusuarios: data.idusuarios ?? data.id,
+      username: data.username ?? data.email ?? data.nombre,
+      email: data.email,
+      nombre: data.nombre,
+      apellido: data.apellido ?? '',
+      estado: data.estado ?? 'ACTIVO'
+    };
   }
 
   private handleError(error: HttpErrorResponse) {

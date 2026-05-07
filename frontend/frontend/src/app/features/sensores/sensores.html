@@ -1,0 +1,314 @@
+<section class="sensors-page">
+
+  <div class="hero-panel">
+    <div class="hero-content">
+      <span class="eyebrow">Monitoreo IoT</span>
+      <h2>Gestión de sensores</h2>
+      <p>
+        Registre, consulte y supervise los sensores vinculados a los dispositivos IoT del sistema de alerta temprana.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn btn-light" type="button" (click)="refrescar()" [disabled]="loading || refreshing">
+          <i class="fa-solid fa-rotate" [class.spin]="refreshing"></i>
+          Actualizar
+        </button>
+
+        <button class="btn btn-primary" type="button" (click)="abrirModalCrear()">
+          <i class="fa-solid fa-plus"></i>
+          Nuevo sensor
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-status">
+      <div class="status-ring">
+        <span>{{ sensores.length }}</span>
+        <small>Sensores</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <article class="metric-card">
+      <div class="metric-icon blue">
+        <i class="fa-solid fa-satellite-dish"></i>
+      </div>
+
+      <div>
+        <h3>{{ sensores.length }}</h3>
+        <p>Total sensores</p>
+      </div>
+    </article>
+
+    <article class="metric-card">
+      <div class="metric-icon green">
+        <i class="fa-solid fa-water"></i>
+      </div>
+
+      <div>
+        <h3>{{ totalUltrasonicos() }}</h3>
+        <p>Sensores ultrasónicos</p>
+      </div>
+    </article>
+
+    <article class="metric-card">
+      <div class="metric-icon amber">
+        <i class="fa-solid fa-microchip"></i>
+      </div>
+
+      <div>
+        <h3>{{ dispositivosVinculados() }}</h3>
+        <p>Dispositivos vinculados</p>
+      </div>
+    </article>
+
+    <article class="metric-card">
+      <div class="metric-icon purple">
+        <i class="fa-solid fa-filter"></i>
+      </div>
+
+      <div>
+        <h3>{{ sensoresFiltrados.length }}</h3>
+        <p>Resultados visibles</p>
+      </div>
+    </article>
+  </div>
+
+  <div class="message success" *ngIf="successMessage">
+    <i class="fa-solid fa-circle-check"></i>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <div class="message error" *ngIf="errorMessage && !modalVisible">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <section class="workspace-card">
+
+    <div class="workspace-header">
+      <div>
+        <h3>Inventario de sensores</h3>
+        <p>
+          Consulte el tipo, unidad de medición y dispositivo asociado a cada sensor.
+          <span class="updating" *ngIf="refreshing">Actualizando datos...</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-control">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input
+          type="text"
+          placeholder="Buscar por tipo, unidad o dispositivo..."
+          [value]="searchTerm"
+          (input)="buscar($event)">
+      </div>
+
+      <select
+        class="type-select"
+        name="filtroTipo"
+        [(ngModel)]="filtroTipo"
+        (change)="aplicarFiltros()">
+        <option value="TODOS">Todos los tipos</option>
+        <option *ngFor="let tipo of obtenerTipos()" [value]="tipo">
+          {{ etiquetaTipo(tipo) }}
+        </option>
+      </select>
+
+      <button
+        class="clear-filters"
+        type="button"
+        *ngIf="searchTerm || filtroTipo !== 'TODOS'"
+        (click)="limpiarFiltros()">
+        <i class="fa-solid fa-xmark"></i>
+        Limpiar
+      </button>
+    </div>
+
+    <div class="skeleton-grid" *ngIf="loading">
+      <article class="skeleton-card" *ngFor="let item of [1,2,3]">
+        <div class="skeleton-top">
+          <span></span>
+          <small></small>
+        </div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line short"></div>
+      </article>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && sensoresFiltrados.length === 0 && !errorMessage">
+      <div class="empty-icon">
+        <i class="fa-solid fa-satellite-dish"></i>
+      </div>
+
+      <h4>No hay sensores para mostrar</h4>
+      <p>
+        No se encontraron sensores con los filtros actuales. Intente limpiar la búsqueda o registre uno nuevo.
+      </p>
+
+      <button class="btn btn-primary" type="button" (click)="abrirModalCrear()">
+        <i class="fa-solid fa-plus"></i>
+        Registrar sensor
+      </button>
+    </div>
+
+    <div class="sensors-grid" *ngIf="!loading && sensoresFiltrados.length > 0">
+      <article
+        class="sensor-card"
+        *ngFor="let sensor of sensoresFiltrados; trackBy: trackBySensorId">
+
+        <div class="sensor-card-header">
+          <div class="sensor-identity">
+            <div class="sensor-avatar">
+              <i class="fa-solid fa-satellite-dish"></i>
+            </div>
+
+            <div>
+              <h4>{{ etiquetaTipo(sensor.tipo) }}</h4>
+              <p>ID {{ sensor.id }}</p>
+            </div>
+          </div>
+
+          <span class="unit-pill">
+            {{ sensor.unidad || 'Sin unidad' }}
+          </span>
+        </div>
+
+        <div class="sensor-info-grid">
+          <div class="info-item">
+            <span>Tipo</span>
+            <strong>{{ sensor.tipo || 'Sin tipo' }}</strong>
+          </div>
+
+          <div class="info-item">
+            <span>Unidad</span>
+            <strong>{{ sensor.unidad || 'No registrada' }}</strong>
+          </div>
+
+          <div class="info-item wide">
+            <span>Dispositivo vinculado</span>
+            <strong>{{ obtenerNombreDispositivo(sensor.dispositivo) }}</strong>
+            <small>ID {{ sensor.dispositivo || 'N/A' }}</small>
+          </div>
+        </div>
+
+      </article>
+    </div>
+
+  </section>
+
+</section>
+
+<div class="modal-backdrop" *ngIf="modalVisible">
+  <div class="modal-shell">
+
+    <div class="modal-visual">
+      <div class="modal-icon">
+        <i class="fa-solid fa-satellite-dish"></i>
+      </div>
+
+      <h3>Nuevo sensor</h3>
+
+      <p>
+        Registre un nuevo sensor y vincúlelo a un dispositivo IoT existente dentro del sistema.
+      </p>
+
+      <div class="modal-hint">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>El sensor debe estar asociado a un dispositivo previamente registrado.</span>
+      </div>
+    </div>
+
+    <div class="modal-content">
+
+      <div class="modal-top">
+        <div>
+          <h3>Formulario de registro</h3>
+          <p>Complete la información requerida para continuar.</p>
+        </div>
+
+        <button class="modal-close" type="button" (click)="cerrarModal()" [disabled]="saving">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="message error" *ngIf="errorMessage">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <form class="sensor-form" (ngSubmit)="guardarSensor()">
+
+        <div class="form-section">
+          <h4>Información del sensor</h4>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Tipo de sensor *</label>
+              <input
+                type="text"
+                name="tipo"
+                [(ngModel)]="sensorForm.tipo"
+                placeholder="Ej: Ultrasónico"
+                [disabled]="saving">
+            </div>
+
+            <div class="form-group">
+              <label>Unidad de medición *</label>
+              <input
+                type="text"
+                name="unidad"
+                [(ngModel)]="sensorForm.unidad"
+                placeholder="Ej: cm"
+                [disabled]="saving">
+            </div>
+
+            <div class="form-group full">
+              <label>Dispositivo vinculado *</label>
+              <select
+                name="dispositivo"
+                [(ngModel)]="sensorForm.dispositivo"
+                [disabled]="saving">
+                <option [ngValue]="null">Seleccione un dispositivo</option>
+                <option
+                  *ngFor="let dispositivo of dispositivos"
+                  [ngValue]="dispositivo.id">
+                  {{
+                    dispositivo.codigo ||
+                    dispositivo.name ||
+                    dispositivo.device_id ||
+                    dispositivo.ubicacion ||
+                    ('Dispositivo ' + dispositivo.id)
+                  }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" (click)="cerrarModal()" [disabled]="saving">
+            Cancelar
+          </button>
+
+          <button class="btn btn-primary" type="submit" [disabled]="saving">
+            <span *ngIf="!saving">
+              Guardar sensor
+            </span>
+
+            <span class="saving-content" *ngIf="saving">
+              <i class="fa-solid fa-spinner spin"></i>
+              Guardando...
+            </span>
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+</div>

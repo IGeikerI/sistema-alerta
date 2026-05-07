@@ -1,13 +1,13 @@
 {
   "name": "frontend",
   "version": "0.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
-  },
+"scripts": {
+  "ng": "ng",
+  "start": "serve -s dist/frontend/browser -l tcp://0.0.0.0:$PORT",
+  "build": "ng build --configuration production",
+  "watch": "ng build --watch --configuration development",
+  "test": "ng test"
+},
   "private": true,
   "packageManager": "npm@11.6.2",
   "dependencies": {
@@ -19,7 +19,10 @@
     "@angular/router": "^21.2.0",
     "@fortawesome/fontawesome-free": "^7.2.0",
     "angular": "file:../../../../../../cli",
+    "chart.js": "^4.5.1",
+    "ng2-charts": "^10.0.0",
     "rxjs": "~7.8.0",
+    "serve": "^14.2.6",
     "tslib": "^2.3.0"
   },
   "devDependencies": {

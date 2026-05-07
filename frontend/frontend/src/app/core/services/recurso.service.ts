@@ -1,10 +1,12 @@
+// src/app/core/services/recurso.service.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, map, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
-import { Recurso, PaginatedRecursoResponse } from '../models/recurso.model';
+import { Recurso } from '../models/recurso.model';
 import { AuthHeadersService } from './auth-headers.service';
 
 @Injectable({
@@ -20,11 +22,11 @@ export class RecursoService {
   ) {}
 
   listar(): Observable<Recurso[]> {
-    return this.http.get<PaginatedRecursoResponse | Recurso[]>(
+    return this.http.get<any[]>(
       this.apiUrl,
       { headers: this.authHeaders.getAuthHeaders() }
     ).pipe(
-      map(response => Array.isArray(response) ? response : response.results),
+      map(response => Array.isArray(response) ? response : (response as any).results),
       catchError(this.handleError)
     );
   }

@@ -1,0 +1,95 @@
+<div class="pronostico-page">
+
+  <div class="weather-card" *ngIf="!loading && !errorMessage">
+
+    <div class="weather-top">
+      <div class="weather-left">
+        <div class="location-row">
+          <span class="location-dot">📍</span>
+          <h2>{{ ciudad }}, La Guajira</h2>
+        </div>
+
+        <div class="current-weather-row">
+          <img class="weather-icon-main" [src]="getIconoUrl(iconoActual)" alt="clima">
+          <div class="temperature-block">
+            <div class="temp-main">{{ temperaturaActual }}</div>
+            <div class="temp-unit">°C</div>
+          </div>
+        </div>
+
+        <div class="weather-details">
+          <p>Prob. de precipitaciones: {{ precipitacion }}%</p>
+          <p>Humedad: {{ humedad }}%</p>
+          <p>Viento: a {{ viento }} km/h</p>
+        </div>
+      </div>
+
+      <div class="weather-right">
+        <h3>Clima</h3>
+        <p class="fecha">{{ fechaActual }}</p>
+        <p class="descripcion">{{ descripcionActual }}</p>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button [class.active]="tabActiva === 'temperatura'" (click)="cambiarTab('temperatura')">
+        Temperatura
+      </button>
+      <button [class.active]="tabActiva === 'precipitaciones'" (click)="cambiarTab('precipitaciones')">
+        Precipitaciones
+      </button>
+      <button [class.active]="tabActiva === 'viento'" (click)="cambiarTab('viento')">
+        Viento
+      </button>
+    </div>
+
+    <div class="chart-container">
+      <canvas
+        baseChart
+        [data]="lineChartData"
+        [options]="lineChartOptions"
+        [type]="'line'">
+      </canvas>
+    </div>
+
+    <div class="daily-forecast">
+      <div class="day-card" *ngFor="let day of dailyData">
+        <div class="day-name">{{ day.dia }}</div>
+        <img [src]="getIconoUrl(day.icono)" alt="icono">
+        <div class="temps">{{ day.max }}° · {{ day.min }}°</div>
+      </div>
+    </div>
+
+    <div class="alert-card">
+      <h3>{{ alertaTitulo }}</h3>
+      <p class="alert-location">{{ ciudad }}, La Guajira</p>
+      <p class="alert-time">{{ alertaTiempo }}</p>
+      <p class="alert-description">{{ alertaDescripcion }}</p>
+      <button class="more-info-btn" (click)="cargarPronostico()">Actualizar información</button>
+    </div>
+  </div>
+
+  <div class="mini-stats" *ngIf="!loading && !errorMessage">
+    <div class="mini-stat">
+      <span>Registros climáticos</span>
+      <strong>{{ totalRegistros }}</strong>
+    </div>
+    <div class="mini-stat">
+      <span>Días con lluvia</span>
+      <strong>{{ diasConLluvia }}</strong>
+    </div>
+    <div class="mini-stat">
+      <span>Temperatura promedio</span>
+      <strong>{{ temperaturaPromedio }}°C</strong>
+    </div>
+  </div>
+
+  <div class="estado carga" *ngIf="loading">
+    Cargando pronóstico del clima...
+  </div>
+
+  <div class="estado error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+</div>

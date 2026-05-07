@@ -1,0 +1,286 @@
+<section class="zones-page">
+
+  <div class="hero-panel">
+    <div class="hero-content">
+      <span class="eyebrow">Territorio monitoreado</span>
+      <h2>Zonas de monitoreo</h2>
+      <p>
+        Registre, consulte y supervise las zonas vinculadas al sistema IoT de alerta temprana.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn btn-light" type="button" (click)="refrescar()" [disabled]="loading || refreshing">
+          <i class="fa-solid fa-rotate" [class.spin]="refreshing"></i>
+          Actualizar
+        </button>
+
+        <button class="btn btn-primary" type="button" (click)="abrirModalCrear()">
+          <i class="fa-solid fa-plus"></i>
+          Nueva zona
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-status">
+      <div class="status-ring">
+        <span>{{ zonas.length }}</span>
+        <small>Zonas</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <article class="metric-card">
+      <div class="metric-icon green">
+        <i class="fa-solid fa-map-location-dot"></i>
+      </div>
+
+      <div>
+        <h3>{{ zonas.length }}</h3>
+        <p>Total zonas</p>
+      </div>
+    </article>
+
+    <article class="metric-card">
+      <div class="metric-icon blue">
+        <i class="fa-solid fa-location-dot"></i>
+      </div>
+
+      <div>
+        <h3>{{ zonasConDireccion() }}</h3>
+        <p>Con dirección</p>
+      </div>
+    </article>
+
+    <article class="metric-card">
+      <div class="metric-icon amber">
+        <i class="fa-solid fa-circle-question"></i>
+      </div>
+
+      <div>
+        <h3>{{ zonasSinDireccion() }}</h3>
+        <p>Sin dirección</p>
+      </div>
+    </article>
+
+    <article class="metric-card">
+      <div class="metric-icon purple">
+        <i class="fa-solid fa-filter"></i>
+      </div>
+
+      <div>
+        <h3>{{ zonasFiltradas.length }}</h3>
+        <p>Resultados visibles</p>
+      </div>
+    </article>
+  </div>
+
+  <div class="message success" *ngIf="successMessage">
+    <i class="fa-solid fa-circle-check"></i>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <div class="message error" *ngIf="errorMessage && !modalVisible">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <section class="workspace-card">
+
+    <div class="workspace-header">
+      <div>
+        <h3>Inventario de zonas</h3>
+        <p>
+          Consulte las zonas configuradas para el monitoreo del nivel del agua.
+          <span class="updating" *ngIf="refreshing">Actualizando datos...</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-control">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input
+          type="text"
+          placeholder="Buscar por nombre, descripción o dirección..."
+          [value]="searchTerm"
+          (input)="buscar($event)">
+      </div>
+
+      <button
+        class="clear-filters"
+        type="button"
+        *ngIf="searchTerm"
+        (click)="limpiarFiltros()">
+        <i class="fa-solid fa-xmark"></i>
+        Limpiar
+      </button>
+    </div>
+
+    <div class="skeleton-grid" *ngIf="loading">
+      <article class="skeleton-card" *ngFor="let item of [1,2,3]">
+        <div class="skeleton-top">
+          <span></span>
+          <small></small>
+        </div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line short"></div>
+      </article>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && zonasFiltradas.length === 0 && !errorMessage">
+      <div class="empty-icon">
+        <i class="fa-solid fa-map-location-dot"></i>
+      </div>
+
+      <h4>No hay zonas para mostrar</h4>
+      <p>
+        No se encontraron zonas con los filtros actuales. Intente limpiar la búsqueda o registre una nueva.
+      </p>
+
+      <button class="btn btn-primary" type="button" (click)="abrirModalCrear()">
+        <i class="fa-solid fa-plus"></i>
+        Registrar zona
+      </button>
+    </div>
+
+    <div class="zones-grid" *ngIf="!loading && zonasFiltradas.length > 0">
+      <article
+        class="zone-card"
+        *ngFor="let zona of zonasFiltradas; trackBy: trackByZonaId">
+
+        <div class="zone-card-header">
+          <div class="zone-identity">
+            <div class="zone-avatar">
+              {{ getInicial(zona.nombre) }}
+            </div>
+
+            <div>
+              <h4>{{ zona.nombre || 'Sin nombre' }}</h4>
+              <p>ID {{ zona.id }}</p>
+            </div>
+          </div>
+
+          <span class="state-pill">
+            Monitoreo
+          </span>
+        </div>
+
+        <div class="zone-info-grid">
+          <div class="info-item wide">
+            <span>Descripción</span>
+            <strong>{{ zona.descripcion || 'Sin descripción registrada.' }}</strong>
+          </div>
+
+          <div class="info-item wide">
+            <span>Dirección</span>
+            <strong>{{ zona.direccion || 'Sin dirección registrada.' }}</strong>
+          </div>
+        </div>
+
+      </article>
+    </div>
+
+  </section>
+
+</section>
+
+<div class="modal-backdrop" *ngIf="modalVisible">
+  <div class="modal-shell">
+
+    <div class="modal-visual">
+      <div class="modal-icon">
+        <i class="fa-solid fa-map-location-dot"></i>
+      </div>
+
+      <h3>Nueva zona</h3>
+
+      <p>
+        Registre una zona de monitoreo para organizar los dispositivos y sensores asociados al sistema.
+      </p>
+
+      <div class="modal-hint">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>La zona permite ubicar territorialmente los dispositivos IoT dentro del sistema.</span>
+      </div>
+    </div>
+
+    <div class="modal-content">
+
+      <div class="modal-top">
+        <div>
+          <h3>Formulario de registro</h3>
+          <p>Complete la información requerida para continuar.</p>
+        </div>
+
+        <button class="modal-close" type="button" (click)="cerrarModal()" [disabled]="saving">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="message error" *ngIf="errorMessage">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <form class="zone-form" (ngSubmit)="guardarZona()">
+
+        <div class="form-section">
+          <h4>Información de la zona</h4>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nombre de la zona *</label>
+              <input
+                type="text"
+                name="nombre"
+                [(ngModel)]="zonaForm.nombre"
+                placeholder="Ej: Barrio Rojas Pinilla"
+                [disabled]="saving">
+            </div>
+
+            <div class="form-group">
+              <label>Dirección</label>
+              <input
+                type="text"
+                name="direccion"
+                [(ngModel)]="zonaForm.direccion"
+                placeholder="Ej: Riohacha, La Guajira"
+                [disabled]="saving">
+            </div>
+
+            <div class="form-group full">
+              <label>Descripción *</label>
+              <textarea
+                name="descripcion"
+                [(ngModel)]="zonaForm.descripcion"
+                placeholder="Describa brevemente la zona monitoreada..."
+                [disabled]="saving">
+              </textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" (click)="cerrarModal()" [disabled]="saving">
+            Cancelar
+          </button>
+
+          <button class="btn btn-primary" type="submit" [disabled]="saving">
+            <span *ngIf="!saving">
+              Guardar zona
+            </span>
+
+            <span class="saving-content" *ngIf="saving">
+              <i class="fa-solid fa-spinner spin"></i>
+              Guardando...
+            </span>
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,121 @@
+<section class="page">
+
+  <div class="hero">
+    <div>
+      <span class="badge">Sistema de alerta temprana</span>
+      <h1>Alertas de inundación</h1>
+      <p>
+        Consulte las alertas generadas cuando el nivel del agua alcanza un estado crítico.
+      </p>
+
+      <button type="button" (click)="cargarAlertas()">
+        <i class="fa-solid fa-rotate"></i>
+        Actualizar
+      </button>
+    </div>
+
+    <div class="hero-indicator">
+      <span>Total alertas</span>
+      <strong>{{ totalAlertas }}</strong>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="card">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <div>
+        <h3>{{ totalAlertas }}</h3>
+        <p>Alertas registradas</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <i class="fa-solid fa-bell"></i>
+      <div>
+        <h3>{{ alertasCriticas }}</h3>
+        <p>Eventos críticos</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+      <div>
+        <h3>{{ ultimasAlertas.length }}</h3>
+        <p>Alertas recientes</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert-error" *ngIf="errorMessage">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    {{ errorMessage }}
+  </div>
+
+  <div class="content-grid">
+
+    <div class="table-card">
+      <div class="table-header">
+        <div>
+          <h2>Historial de alertas</h2>
+          <p>Eventos generados por condiciones de riesgo.</p>
+        </div>
+      </div>
+
+      <div *ngIf="loading" class="loading">
+        Cargando alertas...
+      </div>
+
+      <table *ngIf="!loading && alertas.length > 0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Mensaje</th>
+            <th>Estado de riesgo</th>
+            <th>Lectura</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let alerta of alertas">
+            <td>{{ alerta.id }}</td>
+            <td>{{ alerta.mensaje }}</td>
+            <td>
+              <span class="pill danger">
+                {{ alerta.estado_riesgo }}
+              </span>
+            </td>
+            <td>{{ alerta.lectura }}</td>
+            <td>{{ formatearFecha(alerta.fecha) }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="!loading && alertas.length === 0" class="empty">
+        No hay alertas registradas todavía.
+      </div>
+    </div>
+
+    <div class="recent-card">
+      <h2>Últimas alertas</h2>
+      <p>Resumen de los eventos más recientes.</p>
+
+      <div *ngIf="ultimasAlertas.length === 0" class="empty-mini">
+        Sin alertas recientes.
+      </div>
+
+      <div class="alert-item" *ngFor="let alerta of ultimasAlertas">
+        <div class="alert-icon">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+
+        <div>
+          <h4>{{ alerta.mensaje }}</h4>
+          <span>{{ formatearFecha(alerta.fecha) }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</section>

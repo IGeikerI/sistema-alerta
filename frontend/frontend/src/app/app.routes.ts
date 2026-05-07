@@ -8,6 +8,9 @@ import { MainLayoutComponent } from './core/layout/main-layout/main-layout.compo
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { RegisterComponent } from './pages/register/register.component';
 
+
+
+
 export const routes: Routes = [
   {
     path: 'login',
@@ -25,6 +28,64 @@ export const routes: Routes = [
     component: MainLayoutComponent,
     canActivate: [authGuard],
     children: [
+
+
+     {
+  path: 'pronostico',
+  loadComponent: () =>
+    import('./features/pronostico/pronostico').then(m => m.PronosticoComponent),
+  canActivate: [authGuard]
+}, 
+
+{
+  path: 'actuadores',
+  loadComponent: () =>
+    import('./features/actuadores/actuadores').then(m => m.ActuadoresComponent),
+  canActivate: [authGuard]
+},
+{
+  path: 'usuarios',
+  loadComponent: () =>
+    import('./features/usuarios/usuarios').then(m => m.UsuariosComponent),
+  canActivate: [authGuard]
+},
+
+
+{
+  path: 'predicciones',
+  loadComponent: () =>
+    import('./features/predicciones/predicciones').then(m => m.PrediccionesComponent),
+  canActivate: [authGuard]
+},
+
+
+{
+  path: 'lecturas',
+  loadComponent: () =>
+    import('./features/lecturas/lecturas').then(m => m.LecturasComponent),
+  canActivate: [authGuard]
+},
+{
+  path: 'sensores',
+  loadComponent: () =>
+    import('./features/sensores/sensores').then(m => m.SensoresComponent),
+  canActivate: [authGuard]
+},
+
+{
+  path: 'zonas',
+  loadComponent: () =>
+    import('./features/zonas/zonas').then(m => m.ZonasComponent),
+  canActivate: [authGuard]
+},
+
+    {
+      path: 'alertas',
+      loadComponent: () =>
+        import('./features/alertas/alertas').then(m => m.AlertasComponent),
+      canActivate: [authGuard]
+    },
+
       {
         path: 'dashboard',
         component: DashboardComponent,

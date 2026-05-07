@@ -1,0 +1,339 @@
+<section class="actuators-page">
+
+  <div class="hero-panel">
+    <div class="hero-content">
+      <span class="eyebrow">Control operativo</span>
+      <h2>Gestión de actuadores</h2>
+      <p>
+        Registre, consulte y supervise los actuadores vinculados a los dispositivos IoT del sistema de alerta temprana.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn btn-light" type="button" (click)="refrescar()" [disabled]="loading || refreshing">
+          <i class="fa-solid fa-rotate" [class.spin]="refreshing"></i>
+          Actualizar
+        </button>
+
+        <button class="btn btn-primary" type="button" (click)="abrirModalCrear()">
+          <i class="fa-solid fa-plus"></i>
+          Nuevo actuador
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-status">
+      <div class="status-ring">
+        <span>{{ totalActuadores() }}</span>
+        <small>Actuadores</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <article class="metric-card">
+      <div class="metric-icon blue">
+        <i class="fa-solid fa-toggle-on"></i>
+      </div>
+
+      <div>
+        <h3>{{ totalActuadores() }}</h3>
+        <p>Total actuadores</p>
+      </div>
+    </article>
+
+    <article class="metric-card">
+      <div class="metric-icon green">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+
+      <div>
+        <h3>{{ totalActivos() }}</h3>
+        <p>Actuadores activos</p>
+      </div>
+    </article>
+
+    <article class="metric-card">
+      <div class="metric-icon amber">
+        <i class="fa-solid fa-circle-pause"></i>
+      </div>
+
+      <div>
+        <h3>{{ totalInactivos() }}</h3>
+        <p>Actuadores inactivos</p>
+      </div>
+    </article>
+
+    <article class="metric-card">
+      <div class="metric-icon purple">
+        <i class="fa-solid fa-microchip"></i>
+      </div>
+
+      <div>
+        <h3>{{ dispositivosVinculados() }}</h3>
+        <p>Dispositivos vinculados</p>
+      </div>
+    </article>
+  </div>
+
+  <div class="message success" *ngIf="successMessage">
+    <i class="fa-solid fa-circle-check"></i>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <div class="message error" *ngIf="errorMessage && !modalVisible">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <section class="workspace-card">
+
+    <div class="workspace-header">
+      <div>
+        <h3>Inventario de actuadores</h3>
+        <p>
+          Consulte el tipo, estado y dispositivo asociado a cada actuador.
+          <span class="updating" *ngIf="refreshing">Actualizando datos...</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-control">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input
+          type="text"
+          placeholder="Buscar por tipo, estado o dispositivo..."
+          [value]="searchTerm"
+          (input)="buscar($event)">
+      </div>
+
+      <div class="filter-group">
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="filtroEstado === 'TODOS'"
+          (click)="cambiarFiltroEstado('TODOS')">
+          Todos
+        </button>
+
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="filtroEstado === 'Activo'"
+          (click)="cambiarFiltroEstado('Activo')">
+          Activos
+        </button>
+
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="filtroEstado === 'Inactivo'"
+          (click)="cambiarFiltroEstado('Inactivo')">
+          Inactivos
+        </button>
+
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="filtroEstado === 'Mantenimiento'"
+          (click)="cambiarFiltroEstado('Mantenimiento')">
+          Mantenimiento
+        </button>
+      </div>
+
+      <button
+        class="clear-filters"
+        type="button"
+        *ngIf="searchTerm || filtroEstado !== 'TODOS'"
+        (click)="limpiarFiltros()">
+        <i class="fa-solid fa-xmark"></i>
+        Limpiar
+      </button>
+    </div>
+
+    <div class="skeleton-grid" *ngIf="loading">
+      <article class="skeleton-card" *ngFor="let item of [1,2,3]">
+        <div class="skeleton-top">
+          <span></span>
+          <small></small>
+        </div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line short"></div>
+      </article>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && actuadoresFiltrados.length === 0 && !errorMessage">
+      <div class="empty-icon">
+        <i class="fa-solid fa-toggle-on"></i>
+      </div>
+
+      <h4>No hay actuadores para mostrar</h4>
+      <p>
+        No se encontraron actuadores con los filtros actuales. Intente limpiar la búsqueda o registre uno nuevo.
+      </p>
+
+      <button class="btn btn-primary" type="button" (click)="abrirModalCrear()">
+        <i class="fa-solid fa-plus"></i>
+        Registrar actuador
+      </button>
+    </div>
+
+    <div class="actuators-grid" *ngIf="!loading && actuadoresFiltrados.length > 0">
+      <article
+        class="actuator-card"
+        *ngFor="let actuador of actuadoresFiltrados; trackBy: trackByActuadorId">
+
+        <div class="actuator-card-header">
+          <div class="actuator-identity">
+            <div class="actuator-avatar">
+              <i class="fa-solid fa-toggle-on"></i>
+            </div>
+
+            <div>
+              <h4>{{ actuador.tipo || 'Actuador' }}</h4>
+              <p>ID {{ actuador.id }}</p>
+            </div>
+          </div>
+
+          <span class="state-pill" [ngClass]="getClaseEstado(actuador.estado)">
+            {{ actuador.estado || 'Sin estado' }}
+          </span>
+        </div>
+
+        <div class="actuator-info-grid">
+          <div class="info-item">
+            <span>Tipo</span>
+            <strong>{{ actuador.tipo || 'Sin tipo' }}</strong>
+          </div>
+
+          <div class="info-item">
+            <span>Estado</span>
+            <strong>{{ actuador.estado || 'No registrado' }}</strong>
+          </div>
+
+          <div class="info-item wide">
+            <span>Dispositivo vinculado</span>
+            <strong>{{ obtenerNombreDispositivo(actuador.dispositivo) }}</strong>
+            <small>ID {{ actuador.dispositivo || 'N/A' }}</small>
+          </div>
+        </div>
+
+      </article>
+    </div>
+
+  </section>
+
+</section>
+
+<div class="modal-backdrop" *ngIf="modalVisible">
+  <div class="modal-shell">
+
+    <div class="modal-visual">
+      <div class="modal-icon">
+        <i class="fa-solid fa-toggle-on"></i>
+      </div>
+
+      <h3>Nuevo actuador</h3>
+
+      <p>
+        Registre un actuador y vincúlelo a un dispositivo IoT existente dentro del sistema.
+      </p>
+
+      <div class="modal-hint">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>El actuador debe estar asociado a un dispositivo previamente registrado.</span>
+      </div>
+    </div>
+
+    <div class="modal-content">
+
+      <div class="modal-top">
+        <div>
+          <h3>Formulario de registro</h3>
+          <p>Complete la información requerida para continuar.</p>
+        </div>
+
+        <button class="modal-close" type="button" (click)="cerrarModal()" [disabled]="saving">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="message error" *ngIf="errorMessage">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <form class="actuator-form" (ngSubmit)="guardarActuador()">
+
+        <div class="form-section">
+          <h4>Información del actuador</h4>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Tipo de actuador *</label>
+              <input
+                type="text"
+                name="tipo"
+                [(ngModel)]="actuadorForm.tipo"
+                placeholder="Ej: Bomba de agua"
+                [disabled]="saving">
+            </div>
+
+            <div class="form-group">
+              <label>Estado *</label>
+              <select
+                name="estado"
+                [(ngModel)]="actuadorForm.estado"
+                [disabled]="saving">
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+                <option value="Mantenimiento">Mantenimiento</option>
+              </select>
+            </div>
+
+            <div class="form-group full">
+              <label>Dispositivo vinculado *</label>
+              <select
+                name="dispositivo"
+                [(ngModel)]="actuadorForm.dispositivo"
+                [disabled]="saving">
+                <option [ngValue]="null">Seleccione un dispositivo</option>
+                <option
+                  *ngFor="let dispositivo of dispositivos"
+                  [ngValue]="dispositivo.id">
+                  {{
+                    dispositivo.codigo ||
+                    dispositivo.name ||
+                    dispositivo.device_id ||
+                    dispositivo.ubicacion ||
+                    ('Dispositivo ' + dispositivo.id)
+                  }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" (click)="cerrarModal()" [disabled]="saving">
+            Cancelar
+          </button>
+
+          <button class="btn btn-primary" type="submit" [disabled]="saving">
+            <span *ngIf="!saving">
+              Guardar actuador
+            </span>
+
+            <span class="saving-content" *ngIf="saving">
+              <i class="fa-solid fa-spinner spin"></i>
+              Guardando...
+            </span>
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+</div>

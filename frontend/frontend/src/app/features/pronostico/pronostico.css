@@ -1,0 +1,320 @@
+.pronostico-page {
+  padding: 24px;
+  color: #f8fafc;
+}
+
+.weather-card {
+  background: linear-gradient(180deg, #20252f 0%, #1d232d 100%);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.weather-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.weather-left {
+  flex: 1;
+  min-width: 300px;
+}
+
+.weather-right {
+  min-width: 220px;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.location-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.location-row h2 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.location-dot {
+  font-size: 18px;
+}
+
+.current-weather-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.weather-icon-main {
+  width: 84px;
+  height: 84px;
+}
+
+.temperature-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.temp-main {
+  font-size: 72px;
+  line-height: 1;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.temp-unit {
+  font-size: 28px;
+  margin-top: 10px;
+  color: #cbd5e1;
+}
+
+.weather-details {
+  margin-top: 10px;
+  color: #d1d5db;
+  font-size: 18px;
+}
+
+.weather-details p {
+  margin: 4px 0;
+}
+
+.weather-right h3 {
+  margin: 0 0 8px;
+  font-size: 42px;
+  color: #ffffff;
+}
+
+.weather-right .fecha {
+  margin: 0;
+  font-size: 28px;
+  color: #e2e8f0;
+}
+
+.weather-right .descripcion {
+  margin-top: 4px;
+  font-size: 22px;
+  color: #f1f5f9;
+}
+
+.tabs {
+  display: flex;
+  gap: 16px;
+  margin-top: 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.tabs button {
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  font-size: 18px;
+  padding: 8px 0;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+}
+
+.tabs button.active {
+  color: #ffffff;
+  border-bottom-color: #facc15;
+}
+
+.chart-container {
+  margin-top: 18px;
+  height: 260px;
+}
+
+.daily-forecast {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.day-card {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 14px 10px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.day-card:hover {
+  transform: translateY(-3px);
+}
+
+.day-name {
+  font-size: 22px;
+  font-weight: 600;
+  text-transform: lowercase;
+  margin-bottom: 6px;
+}
+
+.day-card img {
+  width: 58px;
+  height: 58px;
+}
+
+.temps {
+  font-size: 18px;
+  color: #e2e8f0;
+}
+
+.alert-card {
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.alert-card h3 {
+  font-size: 44px;
+  margin: 0;
+  color: #ff8b7c;
+}
+
+.alert-location {
+  margin: 6px 0;
+  font-size: 26px;
+  color: #dbeafe;
+}
+
+.alert-time {
+  margin: 4px 0 18px;
+  color: #cbd5e1;
+  font-size: 18px;
+}
+
+.alert-description {
+  font-size: 26px;
+  margin-bottom: 18px;
+  color: #f8fafc;
+}
+
+.more-info-btn {
+  background: transparent;
+  border: none;
+  color: #60a5fa;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.mini-stats {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.mini-stat {
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+}
+
+.mini-stat span {
+  display: block;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.mini-stat strong {
+  display: block;
+  font-size: 28px;
+  margin-top: 8px;
+}
+
+.estado {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 14px;
+  font-size: 16px;
+}
+
+.estado.carga {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.estado.error {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+@media (max-width: 992px) {
+  .weather-right {
+    text-align: left;
+  }
+
+  .weather-right h3 {
+    font-size: 34px;
+  }
+
+  .weather-right .fecha {
+    font-size: 22px;
+  }
+
+  .weather-right .descripcion {
+    font-size: 18px;
+  }
+
+  .temp-main {
+    font-size: 58px;
+  }
+
+  .mini-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .pronostico-page {
+    padding: 14px;
+  }
+
+  .weather-card {
+    padding: 18px;
+  }
+
+  .location-row h2 {
+    font-size: 22px;
+  }
+
+  .temp-main {
+    font-size: 48px;
+  }
+
+  .temp-unit {
+    font-size: 22px;
+  }
+
+  .weather-details {
+    font-size: 15px;
+  }
+
+  .alert-card h3 {
+    font-size: 30px;
+  }
+
+  .alert-description {
+    font-size: 18px;
+  }
+
+  .chart-container {
+    height: 220px;
+  }
+}

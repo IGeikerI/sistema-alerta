@@ -2,11 +2,8 @@
 
 export interface Device {
   id: number;
-  zone_name?: string;
-  farm_name?: string;
-  created_at?: string;
-  updated_at?: string;
 
+  // Campos que usa tu diseño del frontend
   device_id: string;
   name: string;
   device_type: string;
@@ -17,6 +14,16 @@ export interface Device {
   last_seen?: string | null;
   active: boolean;
   zone: number;
+  zone_name?: string;
+  farm_name?: string;
+  created_at?: string;
+  updated_at?: string;
+
+  // Campos reales del backend Django
+  codigo?: string;
+  ubicacion?: string;
+  estado?: string;
+  zona?: number;
 }
 
 export interface PaginatedDeviceResponse {
