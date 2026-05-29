@@ -298,7 +298,7 @@ class SensorViewSet(ModelViewSet):
 class LecturaViewSet(ModelViewSet):
     queryset = LecturaNivel.objects.all()
     serializer_class = LecturaSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
 
 class EstadoRiesgoViewSet(ModelViewSet):
