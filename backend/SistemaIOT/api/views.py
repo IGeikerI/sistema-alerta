@@ -268,13 +268,13 @@ def openweather_forecast(request):
 class RecursoViewSet(ModelViewSet):
     queryset = Recurso.objects.all().order_by('orden')
     serializer_class = RecursoSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
 
 class RolRecursoViewSet(ModelViewSet):
     queryset = RolRecurso.objects.all()
     serializer_class = RolRecursoSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
 
 class ZonaViewSet(ModelViewSet):
