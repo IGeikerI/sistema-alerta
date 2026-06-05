@@ -298,9 +298,7 @@ class SensorViewSet(ModelViewSet):
 class LecturaViewSet(ModelViewSet):
     queryset = LecturaNivel.objects.all()
     serializer_class = LecturaSerializer
-    authentication_classes = []
-    permission_classes = [AllowAny]
-
+    permission_classes = [IsAuthenticated]
     
 
 class EstadoRiesgoViewSet(ModelViewSet):
@@ -312,29 +310,24 @@ class EstadoRiesgoViewSet(ModelViewSet):
 class AlertaViewSet(ModelViewSet):
     queryset = Alerta.objects.all()
     serializer_class = AlertaSerializer
-    authentication_classes = []
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
 
 class NotificacionViewSet(ModelViewSet):
     queryset = Notificacion.objects.all()
     serializer_class = NotificacionSerializer
-    authentication_classes = []
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
 
 class PronosticoViewSet(ModelViewSet):
     queryset = Pronostico.objects.all()
     serializer_class = PronosticoSerializer
-    authentication_classes = []
-    permission_classes = [AllowAny]
-
+    permission_classes = [IsAuthenticated]
 
 class PrediccionViewSet(ModelViewSet):
     queryset = PrediccionRiesgo.objects.all()
     serializer_class = PrediccionSerializer
-    authentication_classes = []
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
 
 class ActuadorViewSet(ModelViewSet):
