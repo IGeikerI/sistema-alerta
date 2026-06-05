@@ -525,52 +525,31 @@ export class RolesComponent implements OnInit {
       });
   }
 
-  toggleRecursoRol(rol: Rol, recurso: Recurso, event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
-    const key = `rol-${rol.idrol}-recurso-${recurso.idRecursos}`;
-    const relacionExistente = this.rolesRecursos.find(item =>
-      item.rol === rol.idrol && item.recurso === recurso.idRecursos
-    );
+toggleRecursoRol(rol: Rol, recurso: Recurso, event: Event): void {
+  const checked = (event.target as HTMLInputElement).checked;
 
-    this.processingRelationKey = key;
-    this.limpiarMensajes();
-    this.cdr.markForCheck();
+  // 🔥 SOLO ESTA LÍNEA NUEVA
+ const recursoId = recurso.idRecursos || (recurso as any).id;
 
-    if (checked) {
-      if (relacionExistente) {
-        this.processingRelationKey = null;
-        return;
-      }
+  const key = `rol-${rol.idrol}-recurso-${recursoId}`;
+  const relacionExistente = this.rolesRecursos.find(item =>
+    item.rol === rol.idrol && item.recurso === recursoId
+  );
 
-      this.rolRecursoService.crear({
-        rol: rol.idrol,
-        recurso: recurso.idRecursos
-      })
-        .pipe(
-          finalize(() => {
-            this.processingRelationKey = null;
-            this.cdr.markForCheck();
-          })
-        )
-        .subscribe({
-          next: (relacion) => {
-            this.rolesRecursos = [relacion, ...this.rolesRecursos];
-            this.successMessage = 'Recurso asignado correctamente.';
-          },
-          error: (error) => {
-            this.errorMessage = this.obtenerMensajeError(error);
-          }
-        });
+  this.processingRelationKey = key;
+  this.limpiarMensajes();
+  this.cdr.markForCheck();
 
-      return;
-    }
-
-    if (!relacionExistente) {
+  if (checked) {
+    if (relacionExistente) {
       this.processingRelationKey = null;
       return;
     }
 
-    this.rolRecursoService.eliminar(relacionExistente.id)
+    this.rolRecursoService.crear({
+      rol: rol.idrol,
+      recurso: recursoId   // 🔥 SOLO AQUÍ
+    })
       .pipe(
         finalize(() => {
           this.processingRelationKey = null;
@@ -578,15 +557,40 @@ export class RolesComponent implements OnInit {
         })
       )
       .subscribe({
-        next: () => {
-          this.rolesRecursos = this.rolesRecursos.filter(item => item.id !== relacionExistente.id);
-          this.successMessage = 'Recurso removido correctamente.';
+        next: (relacion) => {
+          this.rolesRecursos = [relacion, ...this.rolesRecursos];
+          this.successMessage = 'Recurso asignado correctamente.';
         },
         error: (error) => {
           this.errorMessage = this.obtenerMensajeError(error);
         }
       });
+
+    return;
   }
+
+  if (!relacionExistente) {
+    this.processingRelationKey = null;
+    return;
+  }
+
+  this.rolRecursoService.eliminar(relacionExistente.id)
+    .pipe(
+      finalize(() => {
+        this.processingRelationKey = null;
+        this.cdr.markForCheck();
+      })
+    )
+    .subscribe({
+      next: () => {
+        this.rolesRecursos = this.rolesRecursos.filter(item => item.id !== relacionExistente.id);
+        this.successMessage = 'Recurso removido correctamente.';
+      },
+      error: (error) => {
+        this.errorMessage = this.obtenerMensajeError(error);
+      }
+    });
+}
 
   usuarioTieneRol(usuarioId: number, rolId: number): boolean {
     return this.usuariosRoles.some(item => item.usuario === usuarioId && item.rol === rolId);
