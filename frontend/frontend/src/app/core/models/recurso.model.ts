@@ -1,5 +1,7 @@
 export interface Recurso {
-  idRecursos: number;
+  idRecursos?: number;   // 👈 ahora opcional
+  id?: number;           // 👈 soporte para backend
+
   nombre: string;
   url_backend?: string | null;
   url_frontend?: string | null;

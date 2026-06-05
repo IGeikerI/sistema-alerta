@@ -397,7 +397,7 @@ export class RolesComponent implements OnInit {
     };
 
     const request = this.modoEdicionRecurso && this.recursoSeleccionado
-      ? this.recursoService.actualizar(this.recursoSeleccionado.idRecursos, payload)
+      ? this.recursoService.actualizar(this.recursoSeleccionado.idRecursos || (this.recursoSeleccionado as any).id, payload)
       : this.recursoService.crear(payload);
 
     request
@@ -437,11 +437,11 @@ export class RolesComponent implements OnInit {
 
     if (!confirmar) return;
 
-    this.deletingRecursoId = recurso.idRecursos;
+    this.deletingRecursoId = recurso.idRecursos || (recurso as any).id;
     this.limpiarMensajes();
     this.cdr.markForCheck();
 
-    this.recursoService.eliminar(recurso.idRecursos)
+    this.recursoService.eliminar(recurso.idRecursos || (recurso as any).id)
       .pipe(
         finalize(() => {
           this.deletingRecursoId = null;
@@ -670,7 +670,7 @@ toggleRecursoRol(rol: Rol, recurso: Recurso, event: Event): void {
   }
 
   trackByRecurso(index: number, recurso: Recurso): number {
-    return recurso.idRecursos;
+    return recurso.idRecursos || (recurso as any).id;
   }
 
   trackByUsuario(index: number, usuario: Usuario): number {
