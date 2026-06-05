@@ -152,7 +152,7 @@ def crear_lectura(request):
 # ==========================
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def openweather_actual(request):
     try:
         api_key = getattr(settings, "OPENWEATHER_API_KEY", "")
@@ -207,7 +207,7 @@ def openweather_actual(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def openweather_forecast(request):
     try:
         api_key = getattr(settings, "OPENWEATHER_API_KEY", "")
