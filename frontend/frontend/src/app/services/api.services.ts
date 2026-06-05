@@ -3,7 +3,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-
+import { tap } from 'rxjs';
+import { inject } from '@angular/core';
+import { StorageService } from '../core/services/storage.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -232,9 +234,28 @@ export class ApiService {
   // =========================
   // AUTH
   // =========================
-  login(data: any) {
-    return this.http.post(`${this.api}/login/`, data);
-  }
+ private storage = inject(StorageService);
+
+login(data: any) {
+  return this.http.post<any>(`${this.api}/login/`, data)
+    .pipe(
+      tap((response) => {
+
+        console.log('LOGIN RESPONSE:', response); // 🔍 opcional
+
+        // 🔥 GUARDAR TOKEN
+        this.storage.setToken(response.access);
+        this.storage.setRefreshToken(response.refresh);
+
+        // 🔥 GUARDAR DATOS DEL USUARIO
+        this.storage.setUsuarioAuth(response.usuario);
+
+        // 🔥 GUARDAR ROLES Y RECURSOS
+        this.storage.setRolesAuth(response.roles);
+        this.storage.setRecursosAuth(response.recursos);
+      })
+    );
+}
 
   register(data: any) {
     return this.http.post(`${this.api}/register/`, data);
