@@ -312,25 +312,29 @@ class EstadoRiesgoViewSet(ModelViewSet):
 class AlertaViewSet(ModelViewSet):
     queryset = Alerta.objects.all()
     serializer_class = AlertaSerializer
-    permission_classes = [IsAuthenticated]
+    authentication_classes = []
+    permission_classes = [AllowAny]
 
 
 class NotificacionViewSet(ModelViewSet):
     queryset = Notificacion.objects.all()
     serializer_class = NotificacionSerializer
-    permission_classes = [IsAuthenticated]
+    authentication_classes = []
+    permission_classes = [AllowAny]
 
 
 class PronosticoViewSet(ModelViewSet):
     queryset = Pronostico.objects.all()
     serializer_class = PronosticoSerializer
-    permission_classes = [IsAuthenticated]
+    authentication_classes = []
+    permission_classes = [AllowAny]
 
 
 class PrediccionViewSet(ModelViewSet):
     queryset = PrediccionRiesgo.objects.all()
     serializer_class = PrediccionSerializer
-    permission_classes = [IsAuthenticated]
+    authentication_classes = []
+    permission_classes = [AllowAny]
 
 
 class ActuadorViewSet(ModelViewSet):
