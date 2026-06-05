@@ -468,8 +468,8 @@
 
                 <input
                   type="checkbox"
-                  [checked]="rolTieneRecurso(rol.idrol, recurso.idRecursos || recurso.id)"
-                  [disabled]="relacionProcesando('rol-' + rol.idrol + '-recurso-' + recurso.idRecursos)"
+                  [checked]="rolTieneRecurso(rol.idrol, (recurso.idRecursos ?? recurso.id ?? 0))"
+                  [disabled]="relacionProcesando('rol-' + rol.idrol + '-recurso-' + (recurso.idRecursos ?? recurso.id ?? 0))"
                   (change)="toggleRecursoRol(rol, recurso, $event)">
 
                 <span></span>
