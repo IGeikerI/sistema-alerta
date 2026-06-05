@@ -40,13 +40,14 @@ OPENWEATHER_LAT = os.getenv("OPENWEATHER_LAT", "11.5444")
 OPENWEATHER_LON = os.getenv("OPENWEATHER_LON", "-72.9072")
 
 
+
 # ==========================
 # 🔐 DJANGO REST FRAMEWORK / JWT
 # ==========================
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'api.authentication.UsuarioJWTAuthentication',
     ),
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',

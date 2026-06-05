@@ -137,6 +137,14 @@ class Usuario(models.Model):
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=255)
 
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
     def __str__(self):
         return self.nombre
 

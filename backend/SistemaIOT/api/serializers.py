@@ -83,7 +83,7 @@ class RespuestaSerializer(serializers.ModelSerializer):
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = '__all__'
+        fields = ('id', 'nombre', 'email')
 
 # ROL
 class RolSerializer(serializers.ModelSerializer):
