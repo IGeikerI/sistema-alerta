@@ -28,6 +28,9 @@ urlpatterns = [
     path('register/', register),
     path('login/', login),
     path('lecturas-iot/', crear_lectura),  # 👈 renombrada para no chocar
+    path('alertas/recientes/', alertas_recientes),
+    path('alertas/criticas/', eventos_criticos),
+    path('alertas/historial/', alertas_historial),
     path('openweather/actual/', openweather_actual),
     path('openweather/forecast/', openweather_forecast),
 ]

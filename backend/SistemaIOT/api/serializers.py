@@ -49,6 +49,30 @@ class AlertaSerializer(serializers.ModelSerializer):
         model = Alerta
         fields = '__all__'
 
+
+class AlertaDetalleSerializer(serializers.ModelSerializer):
+    nivel = serializers.CharField(source='estado_riesgo.nivel', read_only=True)
+    lectura_id = serializers.IntegerField(source='lectura.id', read_only=True)
+    lectura_valor = serializers.FloatField(source='lectura.valor', read_only=True)
+    lectura_fecha = serializers.DateTimeField(source='lectura.fecha', read_only=True)
+    sensor_id = serializers.IntegerField(source='lectura.sensor.id', read_only=True)
+    sensor_tipo = serializers.CharField(source='lectura.sensor.tipo', read_only=True)
+
+    class Meta:
+        model = Alerta
+        fields = (
+            'id',
+            'mensaje',
+            'fecha',
+            'nivel',
+            'estado_riesgo',
+            'lectura_id',
+            'lectura_valor',
+            'lectura_fecha',
+            'sensor_id',
+            'sensor_tipo',
+        )
+
 # NOTIFICACION
 class NotificacionSerializer(serializers.ModelSerializer):
     class Meta:

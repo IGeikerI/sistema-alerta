@@ -15,6 +15,7 @@ import urllib.error
 
 from .models import *
 from .serializers import *
+from .services import procesar_alerta
 
 
 # ==========================
@@ -111,30 +112,15 @@ def crear_lectura(request):
             sensor=sensor
         )
 
-        if valor < 10:
-            nivel = "Normal"
-        elif valor < 20:
-            nivel = "Alerta"
-        else:
-            nivel = "Peligro"
-
-        estado = EstadoRiesgo.objects.get(nivel=nivel)
-
-        if nivel == "Peligro":
-            alerta = Alerta.objects.create(
-                mensaje="⚠️ Nivel crítico de agua",
-                estado_riesgo=estado,
-                lectura=lectura
-            )
-
-            Notificacion.objects.create(
-                mensaje="🚨 Posible inundación",
-                alerta=alerta
-            )
+        resultado_alerta = procesar_alerta(lectura)
 
         return Response({
             'lectura': lectura.id,
-            'nivel': nivel
+            'nivel': resultado_alerta['nivel'],
+            'alerta_generada': resultado_alerta['alerta_generada'],
+            'alerta': resultado_alerta['alerta'].id if resultado_alerta['alerta'] else None,
+            'notificacion': resultado_alerta['notificacion'].id if resultado_alerta['notificacion'] else None,
+            'detalle': resultado_alerta['motivo'],
         })
 
     except Sensor.DoesNotExist:
@@ -145,6 +131,40 @@ def crear_lectura(request):
 
     except Exception as e:
         return Response({'error': str(e)}, status=500)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def alertas_recientes(request):
+    alertas = (
+        Alerta.objects
+        .select_related('estado_riesgo', 'lectura', 'lectura__sensor')
+        .order_by('-fecha')[:10]
+    )
+    return Response(AlertaDetalleSerializer(alertas, many=True).data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def eventos_criticos(request):
+    alertas = (
+        Alerta.objects
+        .select_related('estado_riesgo', 'lectura', 'lectura__sensor')
+        .filter(estado_riesgo__nivel__iexact='PELIGRO')
+        .order_by('-fecha')
+    )
+    return Response(AlertaDetalleSerializer(alertas, many=True).data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def alertas_historial(request):
+    alertas = (
+        Alerta.objects
+        .select_related('estado_riesgo', 'lectura', 'lectura__sensor')
+        .order_by('-fecha')
+    )
+    return Response(AlertaDetalleSerializer(alertas, many=True).data)
 
 
 # ==========================
