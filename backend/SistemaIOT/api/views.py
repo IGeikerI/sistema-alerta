@@ -151,6 +151,59 @@ def crear_lectura(request):
     return guardar_lectura_iot(request.data)
 
 
+def calcular_estado_lectura(valor):
+    if valor > 250:
+        return 'NORMAL'
+
+    if valor > 100:
+        return 'ALERTA'
+
+    return 'PELIGRO'
+
+
+@api_view(['GET', 'POST'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def lecturas_tiempo_real(request):
+    if request.method == 'GET':
+        sensor_id = request.query_params.get('sensor')
+        queryset = LecturaTiempoReal.objects.select_related('sensor').order_by('-fecha')
+
+        if sensor_id:
+            queryset = queryset.filter(sensor_id=sensor_id)
+
+        lectura = queryset.first()
+
+        if not lectura:
+            return Response({'detail': 'Sin lecturas en tiempo real'}, status=404)
+
+        return Response(LecturaTiempoRealSerializer(lectura).data)
+
+    try:
+        valor = float(request.data['valor'])
+        sensor_id = request.data['sensor']
+        estado = request.data.get('estado') or calcular_estado_lectura(valor)
+        estado = str(estado).upper()
+
+        sensor = Sensor.objects.get(id=sensor_id)
+
+        lectura, _ = LecturaTiempoReal.objects.update_or_create(
+            sensor=sensor,
+            defaults={
+                'valor': valor,
+                'estado': estado,
+            }
+        )
+
+        return Response(LecturaTiempoRealSerializer(lectura).data)
+
+    except Sensor.DoesNotExist:
+        return Response({'error': 'El sensor no existe'}, status=404)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([AllowAny])

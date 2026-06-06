@@ -41,6 +41,16 @@ class LecturaNivel(models.Model):
         return f"{self.valor} - {self.sensor.tipo}"
 
 
+class LecturaTiempoReal(models.Model):
+    valor = models.FloatField()
+    estado = models.CharField(max_length=20)
+    fecha = models.DateTimeField(auto_now=True)
+    sensor = models.OneToOneField(Sensor, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.valor} cm - {self.estado}"
+
+
 # ⚠️ ESTADO RIESGO
 class EstadoRiesgo(models.Model):
     nivel = models.CharField(max_length=20)

@@ -27,6 +27,7 @@ router.register('roles-recursos', RolRecursoViewSet)
 urlpatterns = [
     path('register/', register),
     path('login/', login),
+    path('lecturas-tiempo-real/', lecturas_tiempo_real),
     path('lecturas-iot/', crear_lectura),  # 👈 renombrada para no chocar
     path('alertas/recientes/', alertas_recientes),
     path('alertas/criticas/', eventos_criticos),

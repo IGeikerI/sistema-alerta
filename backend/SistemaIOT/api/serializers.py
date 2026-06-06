@@ -25,6 +25,12 @@ class LecturaSerializer(serializers.ModelSerializer):
         model = LecturaNivel
         fields = '__all__'
 
+
+class LecturaTiempoRealSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LecturaTiempoReal
+        fields = '__all__'
+
 # ESTADO RIESGO
 class EstadoRiesgoSerializer(serializers.ModelSerializer):
     class Meta:
