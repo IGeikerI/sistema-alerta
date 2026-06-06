@@ -152,8 +152,8 @@ def crear_lectura(request):
 
 
 @api_view(['GET'])
-@authentication_classes([UsuarioJWTAuthentication])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def alertas_recientes(request):
     alertas = (
         Alerta.objects
@@ -165,8 +165,8 @@ def alertas_recientes(request):
 
 
 @api_view(['GET'])
-@authentication_classes([UsuarioJWTAuthentication])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def eventos_criticos(request):
     alertas = (
         Alerta.objects
@@ -178,8 +178,8 @@ def eventos_criticos(request):
 
 
 @api_view(['GET'])
-@authentication_classes([UsuarioJWTAuthentication])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def alertas_historial(request):
     alertas = (
         Alerta.objects
@@ -322,6 +322,18 @@ class UsuarioJWTProtectedViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
 
+class PublicReadUsuarioJWTWriteProtectedViewSet(ModelViewSet):
+    def get_authenticators(self):
+        if self.request.method in ('GET', 'HEAD', 'OPTIONS'):
+            return []
+        return [UsuarioJWTAuthentication()]
+
+    def get_permissions(self):
+        if self.request.method in ('GET', 'HEAD', 'OPTIONS'):
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
+
 class RecursoViewSet(UsuarioJWTProtectedViewSet):
     queryset = Recurso.objects.all().order_by('orden')
     serializer_class = RecursoSerializer
@@ -332,17 +344,17 @@ class RolRecursoViewSet(UsuarioJWTProtectedViewSet):
     serializer_class = RolRecursoSerializer
 
 
-class ZonaViewSet(UsuarioJWTProtectedViewSet):
+class ZonaViewSet(PublicReadUsuarioJWTWriteProtectedViewSet):
     queryset = ZonaMonitoreo.objects.all()
     serializer_class = ZonaSerializer
 
 
-class DispositivoViewSet(UsuarioJWTProtectedViewSet):
+class DispositivoViewSet(PublicReadUsuarioJWTWriteProtectedViewSet):
     queryset = DispositivoIoT.objects.all()
     serializer_class = DispositivoSerializer
 
 
-class SensorViewSet(UsuarioJWTProtectedViewSet):
+class SensorViewSet(PublicReadUsuarioJWTWriteProtectedViewSet):
     queryset = Sensor.objects.all()
     serializer_class = SensorSerializer
 
@@ -357,12 +369,12 @@ class LecturaViewSet(ModelViewSet):
         return guardar_lectura_iot(request.data)
 
 
-class EstadoRiesgoViewSet(UsuarioJWTProtectedViewSet):
+class EstadoRiesgoViewSet(PublicReadUsuarioJWTWriteProtectedViewSet):
     queryset = EstadoRiesgo.objects.all()
     serializer_class = EstadoRiesgoSerializer
 
 
-class AlertaViewSet(UsuarioJWTProtectedViewSet):
+class AlertaViewSet(PublicReadUsuarioJWTWriteProtectedViewSet):
     queryset = Alerta.objects.all()
     serializer_class = AlertaDetalleSerializer
 
@@ -375,12 +387,12 @@ class AlertaViewSet(UsuarioJWTProtectedViewSet):
         )
 
 
-class NotificacionViewSet(UsuarioJWTProtectedViewSet):
+class NotificacionViewSet(PublicReadUsuarioJWTWriteProtectedViewSet):
     queryset = Notificacion.objects.all()
     serializer_class = NotificacionSerializer
 
 
-class PronosticoViewSet(UsuarioJWTProtectedViewSet):
+class PronosticoViewSet(PublicReadUsuarioJWTWriteProtectedViewSet):
     queryset = Pronostico.objects.all()
     serializer_class = PronosticoSerializer
 
@@ -405,22 +417,22 @@ class PrediccionViewSet(ModelViewSet):
         return queryset
 
 
-class ActuadorViewSet(UsuarioJWTProtectedViewSet):
+class ActuadorViewSet(PublicReadUsuarioJWTWriteProtectedViewSet):
     queryset = Actuador.objects.all()
     serializer_class = ActuadorSerializer
 
 
-class EstadoActuadorViewSet(UsuarioJWTProtectedViewSet):
+class EstadoActuadorViewSet(PublicReadUsuarioJWTWriteProtectedViewSet):
     queryset = EstadoActuador.objects.all()
     serializer_class = EstadoActuadorSerializer
 
 
-class ComandoViewSet(UsuarioJWTProtectedViewSet):
+class ComandoViewSet(PublicReadUsuarioJWTWriteProtectedViewSet):
     queryset = ComandoRemoto.objects.all()
     serializer_class = ComandoSerializer
 
 
-class RespuestaViewSet(UsuarioJWTProtectedViewSet):
+class RespuestaViewSet(PublicReadUsuarioJWTWriteProtectedViewSet):
     queryset = RespuestaComando.objects.all()
     serializer_class = RespuestaSerializer
 
