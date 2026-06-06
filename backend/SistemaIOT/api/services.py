@@ -7,11 +7,11 @@ NIVEL_PELIGRO = "PELIGRO"
 
 
 def clasificar_nivel(valor):
-    if valor < 10:
+    if valor >= 250:
         return NIVEL_NORMAL
-    if valor < 20:
-        return NIVEL_ALERTA
-    return NIVEL_PELIGRO
+    if valor > 120:
+        return NIVEL_PELIGRO
+    return NIVEL_ALERTA
 
 
 def lectura_repetida(lectura):
