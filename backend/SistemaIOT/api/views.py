@@ -149,6 +149,7 @@ def alertas_recientes(request):
     alertas = (
         Alerta.objects
         .select_related('estado_riesgo', 'lectura', 'lectura__sensor')
+        .filter(estado_riesgo__nivel__iregex='^(ALERTA|PELIGRO)$')
         .order_by('-fecha')[:10]
     )
     return Response(AlertaDetalleSerializer(alertas, many=True).data)
@@ -172,6 +173,7 @@ def alertas_historial(request):
     alertas = (
         Alerta.objects
         .select_related('estado_riesgo', 'lectura', 'lectura__sensor')
+        .filter(estado_riesgo__nivel__iregex='^(ALERTA|PELIGRO)$')
         .order_by('-fecha')
     )
     return Response(AlertaDetalleSerializer(alertas, many=True).data)
@@ -345,8 +347,16 @@ class EstadoRiesgoViewSet(ModelViewSet):
 
 class AlertaViewSet(ModelViewSet):
     queryset = Alerta.objects.all()
-    serializer_class = AlertaSerializer
+    serializer_class = AlertaDetalleSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return (
+            Alerta.objects
+            .select_related('estado_riesgo', 'lectura', 'lectura__sensor')
+            .filter(estado_riesgo__nivel__iregex='^(ALERTA|PELIGRO)$')
+            .order_by('-fecha', '-id')
+        )
 
 
 class NotificacionViewSet(ModelViewSet):
