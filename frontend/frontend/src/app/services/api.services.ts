@@ -63,11 +63,11 @@ export class ApiService {
   // ROL-RECURSO
   // =========================
   getRolRecursos() {
-    return this.http.get(`${this.api}/rol-recursos/`);
+    return this.http.get(`${this.api}/roles-recursos/`);
   }
 
   crearRolRecurso(data: any) {
-    return this.http.post(`${this.api}/rol-recursos/`, data);
+    return this.http.post(`${this.api}/roles-recursos/`, data);
   }
 
   // =========================
@@ -149,6 +149,18 @@ export class ApiService {
   // =========================
   getAlertas() {
     return this.http.get(`${this.api}/alertas/`);
+  }
+
+  getAlertasHistorial() {
+    return this.http.get(`${this.api}/alertas/historial/`);
+  }
+
+  getAlertasRecientes() {
+    return this.http.get(`${this.api}/alertas/recientes/`);
+  }
+
+  getEventosCriticos() {
+    return this.http.get(`${this.api}/alertas/criticas/`);
   }
 
   // =========================

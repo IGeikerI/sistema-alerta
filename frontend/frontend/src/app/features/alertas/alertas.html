@@ -3,9 +3,9 @@
   <div class="hero">
     <div>
       <span class="badge">Sistema de alerta temprana</span>
-      <h1>Alertas de inundación</h1>
+      <h1>Alertas de inundacion</h1>
       <p>
-        Consulte las alertas generadas cuando el nivel del agua alcanza un estado crítico.
+        Consulte alertas y eventos criticos generados desde las lecturas registradas.
       </p>
 
       <button type="button" (click)="cargarAlertas()">
@@ -25,7 +25,7 @@
       <i class="fa-solid fa-triangle-exclamation"></i>
       <div>
         <h3>{{ totalAlertas }}</h3>
-        <p>Alertas registradas</p>
+        <p>Alertas y peligros registrados</p>
       </div>
     </div>
 
@@ -33,7 +33,7 @@
       <i class="fa-solid fa-bell"></i>
       <div>
         <h3>{{ alertasCriticas }}</h3>
-        <p>Eventos críticos</p>
+        <p>Eventos criticos PELIGRO</p>
       </div>
     </div>
 
@@ -57,7 +57,7 @@
       <div class="table-header">
         <div>
           <h2>Historial de alertas</h2>
-          <p>Eventos generados por condiciones de riesgo.</p>
+          <p>Solo registros en estado ALERTA o PELIGRO vinculados a lecturas.</p>
         </div>
       </div>
 
@@ -70,9 +70,11 @@
           <tr>
             <th>ID</th>
             <th>Mensaje</th>
-            <th>Estado de riesgo</th>
+            <th>Estado</th>
             <th>Lectura</th>
-            <th>Fecha</th>
+            <th>Sensor</th>
+            <th>Fecha lectura</th>
+            <th>Fecha alerta</th>
           </tr>
         </thead>
 
@@ -81,37 +83,61 @@
             <td>{{ alerta.id }}</td>
             <td>{{ alerta.mensaje }}</td>
             <td>
-              <span class="pill danger">
-                {{ alerta.estado_riesgo }}
+              <span class="pill" [ngClass]="getClaseNivel(alerta)">
+                {{ obtenerNivel(alerta) }}
               </span>
             </td>
-            <td>{{ alerta.lectura }}</td>
+            <td>{{ obtenerLectura(alerta) }}</td>
+            <td>{{ obtenerSensor(alerta) }}</td>
+            <td>{{ formatearFecha(alerta.lectura_fecha || '') }}</td>
             <td>{{ formatearFecha(alerta.fecha) }}</td>
           </tr>
         </tbody>
       </table>
 
       <div *ngIf="!loading && alertas.length === 0" class="empty">
-        No hay alertas registradas todavía.
+        No hay alertas registradas todavia.
       </div>
     </div>
 
     <div class="recent-card">
-      <h2>Últimas alertas</h2>
-      <p>Resumen de los eventos más recientes.</p>
+      <h2>Alertas recientes</h2>
+      <p>Ultimas lecturas que generaron estado ALERTA o PELIGRO.</p>
 
       <div *ngIf="ultimasAlertas.length === 0" class="empty-mini">
         Sin alertas recientes.
       </div>
 
       <div class="alert-item" *ngFor="let alerta of ultimasAlertas">
-        <div class="alert-icon">
+        <div class="alert-icon" [ngClass]="getClaseNivel(alerta)">
           <i class="fa-solid fa-bell"></i>
         </div>
 
         <div>
           <h4>{{ alerta.mensaje }}</h4>
+          <span>{{ obtenerNivel(alerta) }} - {{ obtenerLectura(alerta) }}</span>
           <span>{{ formatearFecha(alerta.fecha) }}</span>
+        </div>
+      </div>
+
+      <div class="critical-section">
+        <h2>Eventos criticos</h2>
+        <p>Registros clasificados como PELIGRO.</p>
+
+        <div *ngIf="eventosCriticos.length === 0" class="empty-mini">
+          Sin eventos criticos.
+        </div>
+
+        <div class="alert-item" *ngFor="let alerta of eventosCriticos">
+          <div class="alert-icon danger">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+
+          <div>
+            <h4>{{ alerta.mensaje }}</h4>
+            <span>{{ obtenerLectura(alerta) }} - {{ obtenerSensor(alerta) }}</span>
+            <span>{{ formatearFecha(alerta.fecha) }}</span>
+          </div>
         </div>
       </div>
     </div>
