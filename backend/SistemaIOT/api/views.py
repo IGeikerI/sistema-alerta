@@ -1,4 +1,4 @@
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.viewsets import ModelViewSet
@@ -17,6 +17,7 @@ from .models import *
 from .serializers import *
 from .prediccion_service import generar_prediccion_para_lectura, resumen_predicciones
 from .services import procesar_alerta
+from .authentication import UsuarioJWTAuthentication
 
 
 # ==========================
@@ -24,6 +25,7 @@ from .services import procesar_alerta
 # ==========================
 
 @api_view(['POST'])
+@authentication_classes([])
 @permission_classes([AllowAny])
 def register(request):
     try:
@@ -46,6 +48,7 @@ def register(request):
 
 
 @api_view(['POST'])
+@authentication_classes([])
 @permission_classes([AllowAny])
 def login(request):
     email = request.data.get('email')
@@ -99,12 +102,10 @@ def login(request):
 # 📊 LECTURA (IoT + lógica)
 # ==========================
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def crear_lectura(request):
+def guardar_lectura_iot(data):
     try:
-        valor = float(request.data['valor'])
-        sensor_id = request.data['sensor']
+        valor = float(data['valor'])
+        sensor_id = data['sensor']
 
         sensor = Sensor.objects.get(id=sensor_id)
 
@@ -143,7 +144,15 @@ def crear_lectura(request):
         return Response({'error': str(e)}, status=500)
 
 
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def crear_lectura(request):
+    return guardar_lectura_iot(request.data)
+
+
 @api_view(['GET'])
+@authentication_classes([UsuarioJWTAuthentication])
 @permission_classes([IsAuthenticated])
 def alertas_recientes(request):
     alertas = (
@@ -156,6 +165,7 @@ def alertas_recientes(request):
 
 
 @api_view(['GET'])
+@authentication_classes([UsuarioJWTAuthentication])
 @permission_classes([IsAuthenticated])
 def eventos_criticos(request):
     alertas = (
@@ -168,6 +178,7 @@ def eventos_criticos(request):
 
 
 @api_view(['GET'])
+@authentication_classes([UsuarioJWTAuthentication])
 @permission_classes([IsAuthenticated])
 def alertas_historial(request):
     alertas = (
@@ -180,7 +191,8 @@ def alertas_historial(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def predicciones_resumen(request):
     return Response(resumen_predicciones())
 
@@ -190,6 +202,7 @@ def predicciones_resumen(request):
 # ==========================
 
 @api_view(['GET'])
+@authentication_classes([])
 @permission_classes([AllowAny])
 def openweather_actual(request):
     try:
@@ -245,6 +258,7 @@ def openweather_actual(request):
 
 
 @api_view(['GET'])
+@authentication_classes([])
 @permission_classes([AllowAny])
 def openweather_forecast(request):
     try:
@@ -303,52 +317,54 @@ def openweather_forecast(request):
 # 🔥 VIEWSETS PROFESIONALES
 # ==========================
 
-class RecursoViewSet(ModelViewSet):
+class UsuarioJWTProtectedViewSet(ModelViewSet):
+    authentication_classes = [UsuarioJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+
+class RecursoViewSet(UsuarioJWTProtectedViewSet):
     queryset = Recurso.objects.all().order_by('orden')
     serializer_class = RecursoSerializer
-    permission_classes = [AllowAny]
 
 
-class RolRecursoViewSet(ModelViewSet):
+class RolRecursoViewSet(UsuarioJWTProtectedViewSet):
     queryset = RolRecurso.objects.all()
     serializer_class = RolRecursoSerializer
-    permission_classes = [AllowAny]
 
 
-class ZonaViewSet(ModelViewSet):
+class ZonaViewSet(UsuarioJWTProtectedViewSet):
     queryset = ZonaMonitoreo.objects.all()
     serializer_class = ZonaSerializer
-    permission_classes = [IsAuthenticated]
 
 
-class DispositivoViewSet(ModelViewSet):
+class DispositivoViewSet(UsuarioJWTProtectedViewSet):
     queryset = DispositivoIoT.objects.all()
     serializer_class = DispositivoSerializer
-    permission_classes = [IsAuthenticated]
 
 
-class SensorViewSet(ModelViewSet):
+class SensorViewSet(UsuarioJWTProtectedViewSet):
     queryset = Sensor.objects.all()
     serializer_class = SensorSerializer
-    permission_classes = [IsAuthenticated]
 
 
 class LecturaViewSet(ModelViewSet):
     queryset = LecturaNivel.objects.all()
     serializer_class = LecturaSerializer
-    permission_classes = [IsAuthenticated]
-    
+    authentication_classes = []
+    permission_classes = [AllowAny]
 
-class EstadoRiesgoViewSet(ModelViewSet):
+    def create(self, request, *args, **kwargs):
+        return guardar_lectura_iot(request.data)
+
+
+class EstadoRiesgoViewSet(UsuarioJWTProtectedViewSet):
     queryset = EstadoRiesgo.objects.all()
     serializer_class = EstadoRiesgoSerializer
-    permission_classes = [IsAuthenticated]
 
 
-class AlertaViewSet(ModelViewSet):
+class AlertaViewSet(UsuarioJWTProtectedViewSet):
     queryset = Alerta.objects.all()
     serializer_class = AlertaDetalleSerializer
-    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return (
@@ -359,21 +375,21 @@ class AlertaViewSet(ModelViewSet):
         )
 
 
-class NotificacionViewSet(ModelViewSet):
+class NotificacionViewSet(UsuarioJWTProtectedViewSet):
     queryset = Notificacion.objects.all()
     serializer_class = NotificacionSerializer
-    permission_classes = [IsAuthenticated]
 
 
-class PronosticoViewSet(ModelViewSet):
+class PronosticoViewSet(UsuarioJWTProtectedViewSet):
     queryset = Pronostico.objects.all()
     serializer_class = PronosticoSerializer
-    permission_classes = [IsAuthenticated]
 
 class PrediccionViewSet(ModelViewSet):
     queryset = PrediccionRiesgo.objects.all()
     serializer_class = PrediccionSerializer
-    permission_classes = [IsAuthenticated]
+    authentication_classes = []
+    permission_classes = [AllowAny]
+    http_method_names = ['get', 'head', 'options']
 
     def get_queryset(self):
         queryset = PrediccionRiesgo.objects.all().order_by('-fecha', '-id')
@@ -389,49 +405,41 @@ class PrediccionViewSet(ModelViewSet):
         return queryset
 
 
-class ActuadorViewSet(ModelViewSet):
+class ActuadorViewSet(UsuarioJWTProtectedViewSet):
     queryset = Actuador.objects.all()
     serializer_class = ActuadorSerializer
-    permission_classes = [IsAuthenticated]
 
 
-class EstadoActuadorViewSet(ModelViewSet):
+class EstadoActuadorViewSet(UsuarioJWTProtectedViewSet):
     queryset = EstadoActuador.objects.all()
     serializer_class = EstadoActuadorSerializer
-    permission_classes = [IsAuthenticated]
 
 
-class ComandoViewSet(ModelViewSet):
+class ComandoViewSet(UsuarioJWTProtectedViewSet):
     queryset = ComandoRemoto.objects.all()
     serializer_class = ComandoSerializer
-    permission_classes = [IsAuthenticated]
 
 
-class RespuestaViewSet(ModelViewSet):
+class RespuestaViewSet(UsuarioJWTProtectedViewSet):
     queryset = RespuestaComando.objects.all()
     serializer_class = RespuestaSerializer
-    permission_classes = [IsAuthenticated]
 
 
-class UsuarioViewSet(ModelViewSet):
+class UsuarioViewSet(UsuarioJWTProtectedViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
-    permission_classes = [IsAuthenticated]
 
 
-class RolViewSet(ModelViewSet):
+class RolViewSet(UsuarioJWTProtectedViewSet):
     queryset = Rol.objects.all()
     serializer_class = RolSerializer
-    permission_classes = [IsAuthenticated]
 
 
-class UsuarioRolViewSet(ModelViewSet):
+class UsuarioRolViewSet(UsuarioJWTProtectedViewSet):
     queryset = UsuarioRol.objects.all()
     serializer_class = UsuarioRolSerializer
-    permission_classes = [IsAuthenticated]
 
 
-class AuditoriaViewSet(ModelViewSet):
+class AuditoriaViewSet(UsuarioJWTProtectedViewSet):
     queryset = AuditoriaSistema.objects.all()
     serializer_class = AuditoriaSerializer
-    permission_classes = [IsAuthenticated]
