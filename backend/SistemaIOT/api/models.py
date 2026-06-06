@@ -66,6 +66,7 @@ class PrediccionRiesgo(models.Model):
     fecha = models.DateField()
     nivel_estimado = models.CharField(max_length=20)
     probabilidad = models.FloatField()
+    valor_entrada = models.FloatField(default=0)
 
     def __str__(self):
         return f"{self.fecha} - {self.nivel_estimado}"

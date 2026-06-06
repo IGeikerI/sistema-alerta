@@ -31,6 +31,7 @@ urlpatterns = [
     path('alertas/recientes/', alertas_recientes),
     path('alertas/criticas/', eventos_criticos),
     path('alertas/historial/', alertas_historial),
+    path('predicciones/resumen/', predicciones_resumen),
     path('openweather/actual/', openweather_actual),
     path('openweather/forecast/', openweather_forecast),
 ]

@@ -39,9 +39,18 @@ class PronosticoSerializer(serializers.ModelSerializer):
 
 # PREDICCION
 class PrediccionSerializer(serializers.ModelSerializer):
+    nivel = serializers.CharField(source='nivel_estimado', read_only=True)
+
     class Meta:
         model = PrediccionRiesgo
-        fields = '__all__'
+        fields = (
+            'id',
+            'fecha',
+            'nivel',
+            'nivel_estimado',
+            'probabilidad',
+            'valor_entrada',
+        )
 
 # ALERTA
 class AlertaSerializer(serializers.ModelSerializer):

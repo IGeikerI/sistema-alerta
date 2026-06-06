@@ -15,6 +15,7 @@ import urllib.error
 
 from .models import *
 from .serializers import *
+from .prediccion_service import generar_prediccion_para_lectura, resumen_predicciones
 from .services import procesar_alerta
 
 
@@ -113,6 +114,13 @@ def crear_lectura(request):
         )
 
         resultado_alerta = procesar_alerta(lectura)
+        prediccion = None
+        error_prediccion = None
+
+        try:
+            prediccion = generar_prediccion_para_lectura(lectura)
+        except Exception as e:
+            error_prediccion = str(e)
 
         return Response({
             'lectura': lectura.id,
@@ -120,6 +128,8 @@ def crear_lectura(request):
             'alerta_generada': resultado_alerta['alerta_generada'],
             'alerta': resultado_alerta['alerta'].id if resultado_alerta['alerta'] else None,
             'notificacion': resultado_alerta['notificacion'].id if resultado_alerta['notificacion'] else None,
+            'prediccion': PrediccionSerializer(prediccion).data if prediccion else None,
+            'error_prediccion': error_prediccion,
             'detalle': resultado_alerta['motivo'],
         })
 
@@ -165,6 +175,12 @@ def alertas_historial(request):
         .order_by('-fecha')
     )
     return Response(AlertaDetalleSerializer(alertas, many=True).data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def predicciones_resumen(request):
+    return Response(resumen_predicciones())
 
 
 # ==========================
@@ -348,6 +364,19 @@ class PrediccionViewSet(ModelViewSet):
     queryset = PrediccionRiesgo.objects.all()
     serializer_class = PrediccionSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = PrediccionRiesgo.objects.all().order_by('-fecha', '-id')
+        limit = self.request.query_params.get('limit')
+
+        if limit:
+            try:
+                limit = max(0, int(limit))
+                return queryset[:limit]
+            except ValueError:
+                return queryset
+
+        return queryset
 
 
 class ActuadorViewSet(ModelViewSet):
