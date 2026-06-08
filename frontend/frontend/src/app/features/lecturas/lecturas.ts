@@ -1,9 +1,9 @@
 // src/app/features/lecturas/lecturas.ts
 
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { finalize, timeout } from 'rxjs';
+import { finalize, interval, Subscription, timeout } from 'rxjs';
 
 import { ApiService } from '../../services/api.services';
 
@@ -14,13 +14,15 @@ import { ApiService } from '../../services/api.services';
   templateUrl: './lecturas.html',
   styleUrl: './lecturas.css'
 })
-export class LecturasComponent implements OnInit {
+export class LecturasComponent implements OnInit, OnDestroy {
 
   lecturas: any[] = [];
   lecturasFiltradas: any[] = [];
   sensores: any[] = [];
 
   ultimaLectura: any = null;
+  lecturaTiempoReal: any = null;
+  ultimaActualizacionTiempoReal: string | null = null;
 
   loading = false;
   refreshing = false;
@@ -34,6 +36,9 @@ export class LecturasComponent implements OnInit {
   searchTerm = '';
   filtroEstado = 'TODOS';
 
+  private tiempoRealSub?: Subscription;
+  private historialSub?: Subscription;
+
   lecturaForm = {
     valor: null as number | null,
     sensor: null as number | null
@@ -46,6 +51,40 @@ export class LecturasComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarDatos();
+    this.cargarLecturaTiempoReal();
+    this.iniciarActualizacionAutomatica();
+  }
+
+  ngOnDestroy(): void {
+    this.tiempoRealSub?.unsubscribe();
+    this.historialSub?.unsubscribe();
+  }
+
+  iniciarActualizacionAutomatica(): void {
+    this.tiempoRealSub = interval(2000).subscribe(() => {
+      this.cargarLecturaTiempoReal();
+    });
+
+    this.historialSub = interval(8000).subscribe(() => {
+      this.refrescar(false);
+    });
+  }
+
+  cargarLecturaTiempoReal(): void {
+    this.api.getLecturaTiempoReal()
+      .pipe(timeout(8000))
+      .subscribe({
+        next: (data: any) => {
+          this.lecturaTiempoReal = data;
+          this.ultimaActualizacionTiempoReal = data?.fecha || null;
+          this.cdr.detectChanges();
+        },
+        error: (error: any) => {
+          if (error.status !== 404) {
+            console.error('Error cargando lectura en tiempo real:', error);
+          }
+        }
+      });
   }
 
   cargarDatos(): void {
@@ -104,8 +143,8 @@ export class LecturasComponent implements OnInit {
       });
   }
 
-  refrescar(): void {
-    this.refreshing = true;
+  refrescar(mostrarIndicador = true): void {
+    this.refreshing = mostrarIndicador;
     this.errorMessage = '';
     this.successMessage = '';
 
@@ -256,16 +295,16 @@ export class LecturasComponent implements OnInit {
       return 'Sin datos';
     }
 
-    if (numero >= 250) {
+    if (numero > 250) {
       return 'Normal';
     }
 
-    if (numero > 120 && numero < 250) {
-      return 'Peligro';
+    if (numero > 100 && numero <= 250) {
+      return 'Alerta';
     }
 
-    if (numero <= 120) {
-      return 'Alerta';
+    if (numero <= 100) {
+      return 'Peligro';
     }
 
     return 'Sin datos';
@@ -290,19 +329,38 @@ export class LecturasComponent implements OnInit {
   }
 
   estadoActual(): string {
-    if (!this.ultimaLectura) {
+    const lectura = this.lecturaTiempoReal || this.ultimaLectura;
+
+    if (!lectura) {
       return 'Sin datos';
     }
 
-    return this.calcularEstado(this.ultimaLectura.valor);
+    return lectura.estado || this.calcularEstado(lectura.valor);
   }
 
   claseEstadoActual(): string {
-    if (!this.ultimaLectura) {
+    const lectura = this.lecturaTiempoReal || this.ultimaLectura;
+
+    if (!lectura) {
       return 'estado-sin-datos';
     }
 
-    return this.getClaseEstado(this.ultimaLectura.valor);
+    return this.getClaseEstado(lectura.valor);
+  }
+
+  valorActual(): number {
+    const lectura = this.lecturaTiempoReal || this.ultimaLectura;
+    return Number(lectura?.valor || 0);
+  }
+
+  sensorActual(): string {
+    const lectura = this.lecturaTiempoReal || this.ultimaLectura;
+    return this.obtenerNombreSensor(lectura?.sensor);
+  }
+
+  fechaActualTiempoReal(): string {
+    const fecha = this.ultimaActualizacionTiempoReal || this.lecturaTiempoReal?.fecha;
+    return fecha ? this.formatearFecha(fecha) : 'Esperando datos del circuito';
   }
 
   buscar(event: Event): void {

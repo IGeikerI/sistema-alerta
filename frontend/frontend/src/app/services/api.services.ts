@@ -125,8 +125,17 @@ export class ApiService {
     return this.http.get(`${this.api}/lecturas/`);
   }
 
+  getLecturaTiempoReal(sensor?: number) {
+    const query = sensor ? `?sensor=${sensor}` : '';
+    return this.http.get(`${this.api}/lecturas-tiempo-real/${query}`);
+  }
+
   crearLectura(data: any) {
     return this.http.post(`${this.api}/lecturas/`, data);
+  }
+
+  crearLecturaTiempoReal(data: any) {
+    return this.http.post(`${this.api}/lecturas-tiempo-real/`, data);
   }
 
   crearLecturaIoT(data: any) {

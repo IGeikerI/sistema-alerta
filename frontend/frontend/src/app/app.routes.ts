@@ -7,8 +7,16 @@ import { LoginComponent } from './pages/login/login.component';
 import { MainLayoutComponent } from './core/layout/main-layout/main-layout.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { RegisterComponent } from './pages/register/register.component';
-
-
+import { PronosticoComponent } from './features/pronostico/pronostico';
+import { ActuadoresComponent } from './features/actuadores/actuadores';
+import { UsuariosComponent } from './features/usuarios/usuarios';
+import { PrediccionesComponent } from './features/predicciones/predicciones';
+import { LecturasComponent } from './features/lecturas/lecturas';
+import { SensoresComponent } from './features/sensores/sensores';
+import { ZonasComponent } from './features/zonas/zonas';
+import { AlertasComponent } from './features/alertas/alertas';
+import { RolesComponent } from './features/roles/roles';
+import { Dispositivos } from './features/dispositivos/dispositivos';
 
 
 export const routes: Routes = [
@@ -32,57 +40,49 @@ export const routes: Routes = [
 
      {
   path: 'pronostico',
-  loadComponent: () =>
-    import('./features/pronostico/pronostico').then(m => m.PronosticoComponent),
+  component: PronosticoComponent,
   canActivate: [authGuard]
 }, 
 
 {
   path: 'actuadores',
-  loadComponent: () =>
-    import('./features/actuadores/actuadores').then(m => m.ActuadoresComponent),
+  component: ActuadoresComponent,
   canActivate: [authGuard]
 },
 {
   path: 'usuarios',
-  loadComponent: () =>
-    import('./features/usuarios/usuarios').then(m => m.UsuariosComponent),
+  component: UsuariosComponent,
   canActivate: [authGuard]
 },
 
 
 {
   path: 'predicciones',
-  loadComponent: () =>
-    import('./features/predicciones/predicciones').then(m => m.PrediccionesComponent),
+  component: PrediccionesComponent,
   canActivate: [authGuard]
 },
 
 
 {
   path: 'lecturas',
-  loadComponent: () =>
-    import('./features/lecturas/lecturas').then(m => m.LecturasComponent),
+  component: LecturasComponent,
   canActivate: [authGuard]
 },
 {
   path: 'sensores',
-  loadComponent: () =>
-    import('./features/sensores/sensores').then(m => m.SensoresComponent),
+  component: SensoresComponent,
   canActivate: [authGuard]
 },
 
 {
   path: 'zonas',
-  loadComponent: () =>
-    import('./features/zonas/zonas').then(m => m.ZonasComponent),
+  component: ZonasComponent,
   canActivate: [authGuard]
 },
 
     {
       path: 'alertas',
-      loadComponent: () =>
-        import('./features/alertas/alertas').then(m => m.AlertasComponent),
+      component: AlertasComponent,
       canActivate: [authGuard]
     },
 
@@ -93,14 +93,12 @@ export const routes: Routes = [
       },
       {
         path: 'roles',
-        loadComponent: () =>
-          import('./features/roles/roles').then(m => m.RolesComponent),
+        component: RolesComponent,
         canActivate: [authGuard]
       },
       {
         path: 'dispositivos',
-        loadComponent: () =>
-          import('./features/dispositivos/dispositivos').then(m => m.Dispositivos),
+        component: Dispositivos,
         canActivate: [authGuard]
       },
       {

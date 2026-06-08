@@ -10,6 +10,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     req.url.includes('/zonas/') ||
     req.url.includes('/dispositivos/') ||
     req.url.includes('/sensores/') ||
+    req.url.includes('/lecturas-tiempo-real/') ||
     req.url.includes('/lecturas/') ||
     req.url.includes('/estados/') ||
     req.url.includes('/alertas/') ||
@@ -27,6 +28,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     req.url.includes('/login/') ||
     req.url.includes('/register/') ||
     req.url.includes('/openweather/') ||
+    req.url.includes('/lecturas-tiempo-real/') ||
     req.url.includes('/predicciones/') ||
     esConsultaPublica ||
     (req.method === 'POST' && req.url.includes('/lecturas/')) ||

@@ -23,11 +23,32 @@
 
     <div class="hero-status">
       <div class="status-ring" [ngClass]="claseEstadoActual()">
-        <span>{{ ultimaLectura?.valor ?? 0 }}</span>
+        <span>{{ valorActual() | number:'1.1-1' }}</span>
         <small>{{ estadoActual() }}</small>
       </div>
     </div>
   </div>
+
+  <section class="realtime-panel">
+    <div class="realtime-main">
+      <div class="realtime-icon" [ngClass]="claseEstadoActual()">
+        <i class="fa-solid fa-satellite-dish"></i>
+      </div>
+
+      <div>
+        <span>Lectura actual del circuito</span>
+        <h3>{{ valorActual() | number:'1.1-1' }} cm</h3>
+        <p>{{ sensorActual() }}</p>
+      </div>
+    </div>
+
+    <div class="realtime-meta">
+      <span class="state-pill" [ngClass]="claseEstadoActual()">
+        {{ estadoActual() }}
+      </span>
+      <small>{{ fechaActualTiempoReal() }}</small>
+    </div>
+  </section>
 
   <div class="metrics-grid">
     <article class="metric-card">
