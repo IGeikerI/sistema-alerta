@@ -1,0 +1,22 @@
+<section class="toast-stack" aria-live="polite" aria-atomic="true">
+  <article
+    *ngFor="let notificacion of notificaciones"
+    class="alert-toast"
+    [ngClass]="claseNivel(notificacion)">
+    <div class="toast-icon">
+      <i class="fa-solid" [ngClass]="obtenerNivel(notificacion) === 'PELIGRO' ? 'fa-triangle-exclamation' : 'fa-bell'"></i>
+    </div>
+
+    <div class="toast-content">
+      <div class="toast-header">
+        <strong>{{ titulo(notificacion) }}</strong>
+        <button type="button" (click)="cerrar(notificacion.id)" aria-label="Cerrar notificacion">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <p>{{ notificacion.mensaje }}</p>
+      <span *ngIf="detalle(notificacion)">{{ detalle(notificacion) }}</span>
+    </div>
+  </article>
+</section>
