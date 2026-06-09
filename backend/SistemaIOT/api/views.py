@@ -441,7 +441,7 @@ class AlertaViewSet(PublicReadUsuarioJWTWriteProtectedViewSet):
 
 
 class NotificacionViewSet(PublicReadUsuarioJWTWriteProtectedViewSet):
-    queryset = Notificacion.objects.all()
+    queryset = Notificacion.objects.select_related('alerta', 'alerta__estado_riesgo').order_by('-fecha', '-id')
     serializer_class = NotificacionSerializer
 
 

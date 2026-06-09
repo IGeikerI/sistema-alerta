@@ -51,8 +51,10 @@ def procesar_alerta(lectura):
         mensaje_alerta = "Nivel de agua en estado de alerta"
         mensaje_notificacion = "Se detecto una lectura en nivel ALERTA"
     else:
-        mensaje_alerta = "Nivel critico de agua"
-        mensaje_notificacion = "Evento critico: posible inundacion"
+        mensaje_alerta = "Peligro de inundacion"
+        mensaje_notificacion = (
+            "Peligro de inundacion: se detecto una lectura critica del nivel de agua"
+        )
 
     alerta = Alerta.objects.create(
         mensaje=mensaje_alerta,
