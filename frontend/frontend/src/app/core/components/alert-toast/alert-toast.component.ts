@@ -35,7 +35,7 @@ export class AlertToastComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.cargarVistas();
 
-    this.subscription = interval(4000)
+    this.subscription = interval(1000)
       .pipe(
         startWith(0),
         switchMap(() => this.api.getAlertasRecientes().pipe(catchError(() => of([]))))
@@ -57,7 +57,13 @@ export class AlertToastComponent implements OnInit, OnDestroy {
   }
 
   titulo(alerta: AlertaNotificacion): string {
-    return this.obtenerNivel(alerta) === 'PELIGRO' ? 'Peligro de inundacion' : 'Nivel en alerta';
+    return this.obtenerNivel(alerta) === 'PELIGRO' ? 'Peligro de inundacion' : 'Alerta de inundacion';
+  }
+
+  mensaje(alerta: AlertaNotificacion): string {
+    return this.obtenerNivel(alerta) === 'PELIGRO'
+      ? 'Se ha detectado un peligro de inundacion.'
+      : 'Se ha detectado una alerta de inundacion.';
   }
 
   detalle(alerta: AlertaNotificacion): string {
@@ -103,7 +109,7 @@ export class AlertToastComponent implements OnInit, OnDestroy {
 
     const timer = window.setTimeout(() => {
       this.cerrar(alerta.id);
-    }, 9000);
+    }, 5000);
 
     this.timers.push(timer);
   }
@@ -138,3 +144,4 @@ export class AlertToastComponent implements OnInit, OnDestroy {
     window.sessionStorage.setItem(this.storageKey, JSON.stringify(ids));
   }
 }
+
